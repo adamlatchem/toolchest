@@ -8,6 +8,7 @@ import tkFileDialog
 import tkSimpleDialog
 import json
 import os
+import sys
 import GUIApplication
 from   GUIApplication import tk
 
@@ -17,13 +18,16 @@ class Model(object):
         self.filename = "new.json"
         self.object = {}
 
-    def load(self, file):
-        if file:
-            self.filename = file.name
-            json_text = file.read()
-            self.object = json.loads(json_text)
-        else:
-            self.object = {}
+    def load(self, sourcefile):
+        if isinstance(sourcefile, str):
+            sourcefile = open(sourcefile, 'r')
+        self.filename = sourcefile.name
+        json_text = sourcefile.read()
+        sourcefile.close()
+        self.loads(json_text)
+
+    def loads(self, json_text):
+        self.object = json.loads(json_text)
 
     def save(self, filename=None):
         if filename is None:
@@ -58,7 +62,7 @@ class ViewModel(object):
         self.bind_menu(cm, 'Add null', command=self.cmd_add_null)
         self.bind_menu(cm, 'Delete', command=self.cmd_delete)
         self.view.treeview.bind('<<TreeviewSelect>>', self.on_treeview_select)
-        self.view.treeview.bind('<Button-3>', self.on_show_menu)
+        self.view.treeview.bind('<Button-2>', self.on_show_menu)
         self.view.treeview.bind('<Button-1>', self.on_hide_menu)
         self.view.parent_label.bind('<Button-1>', self.on_hide_menu)
         self.view.parent_name.bind('<Button-1>', self.on_hide_menu)
@@ -66,7 +70,12 @@ class ViewModel(object):
         self.view.item_text.bind('<Button-1>', self.on_hide_menu)
         self.view.root.bind('<FocusOut>', self.on_hide_menu)
 
-        self.cmd_new()
+        if len(sys.argv) > 1:
+            self.model = Model()
+            self.model.load(sys.argv[1])
+            self.new_tree()
+        else:
+            self.cmd_new()
 
     def cmd_add_object(self):
         self.new_node(dict, 'object { ... }')
@@ -89,7 +98,7 @@ class ViewModel(object):
         self.move_selected(1)
 
     def cmd_add_string(self):
-        self.new_node(str, '')
+        self.new_node(str, 'text')
 
     def cmd_add_boolean(self):
         self.new_node(bool, 'true')
@@ -126,12 +135,11 @@ class ViewModel(object):
         if file:
             self.model = Model()
             self.model.load(file)
-            file.close()
             self.view.cmd_clean()
             self.new_tree()
 
     def cmd_save(self):
-        self.model.object = json.loads(self.tree_to_json())
+        self.model.loads(self.tree_to_json())
         self.model.save()
         self.view.cmd_clean()
         self.update_title()
@@ -142,7 +150,7 @@ class ViewModel(object):
             title='Save JSON As',
             parent=self.view.root)
         if filename:
-            self.model.object = json.loads(self.tree_to_json())
+            self.model.loads(self.tree_to_json())
             self.model.save(filename)
             self.view.cmd_clean()
             self.update_title()
@@ -168,11 +176,10 @@ class ViewModel(object):
             self.edit(selected)
 
     def on_show_menu(self, event):
-        menu = self.view.context_menu
-        menu.post(event.x_root, event.y_root)
         item = self.event_to_item(event)
         self.menu_for_item(item)
         self.view.treeview.selection('set', item)
+        self.view.context_menu.post(event.x_root, event.y_root)
 
     def on_hide_menu(self, event):
         self.view.context_menu.unpost()
@@ -293,7 +300,10 @@ class ViewModel(object):
         self.view.parent_name.configure(state=tk.DISABLED)
 
     def update_title(self):
-        self.view.title("JSONEdit " + self.model.filename)
+        filename = self.model.filename[-50:]
+        if filename <> self.model.filename:
+            filename = '... ' + filename
+        self.view.title("JSONEdit " + filename)
 
     def menu_for_item(self, item):
         type = self.item_type[item]
