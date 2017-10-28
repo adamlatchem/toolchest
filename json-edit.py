@@ -92,7 +92,7 @@ class ViewModel(object):
         self.new_node(str, '')
 
     def cmd_add_boolean(self):
-        self.new_node(bool, 'False')
+        self.new_node(bool, 'true')
 
     def cmd_add_number(self):
         self.new_node(float, '0.0')
@@ -103,6 +103,8 @@ class ViewModel(object):
     def cmd_delete(self):
         selected = self.selected()
         parent = self.view.treeview.parent(selected)
+        if parent == '':
+            return
         del self.item_type[selected]
         self.view.treeview.delete(selected)
         parent_type = self.item_type[parent]
@@ -147,8 +149,16 @@ class ViewModel(object):
 
     def on_item_keyup(self, event):
         if self.item <> None:
-            text = self.view.item_text.get(1.0, tk.END)
-            text = text[:-1]
+            text = self.view.item_text.get(1.0, tk.END)[:-1]
+            type = self.item_type[self.item]
+            if type == bool:
+                text = text.lower()
+            elif type in (int, float):
+                try:
+                    type(text)
+                except:
+                    text = '0'
+            text = str(type(text))
             self.view.treeview.item(self.item, text=text)
             self.view.cmd_dirty()
 
@@ -225,6 +235,7 @@ class ViewModel(object):
         elif type in (unicode, str):
             string = tree.item(node)['text']
             string = string.replace('\\', '\\\\')
+            string = string.replace('"', '\\"')
             string = string.replace('\n', '\\n')
             string = string.replace('\t', '\\t')
             return '"' + string + '"'
@@ -261,7 +272,10 @@ class ViewModel(object):
         return node
 
     def edit(self, item):
-        if self.item_type[item] not in ('key', dict, list):
+        type = self.item_type[item]
+        if type == 'key':
+            self.edit(self.view.treeview.get_children(item)[0])
+        elif type not in (dict, list, 'null'):
             parent = self.view.treeview.parent(item)
             parent_text = self.view.treeview.item(parent, 'text')
             text = self.view.treeview.item(item, 'text')
@@ -283,10 +297,10 @@ class ViewModel(object):
 
     def menu_for_item(self, item):
         type = self.item_type[item]
-        menu_state = {
+        context_matrix = {
             'root'  : [0,0,0,0,0,0,0,0,0,2,0],
             'key'   : [0,1,0,0,0,0,0,0,0,2,1],
-            dict    : [0,0,0,3,3,1,1,1,1,2,1],
+            dict    : [1,0,1,3,3,1,1,1,1,2,1],
             list    : [1,0,1,3,3,1,1,1,1,2,1],
             unicode : [0,0,0,3,3,0,0,0,0,2,1],
             int     : [0,0,0,3,3,0,0,0,0,2,1],
@@ -296,7 +310,7 @@ class ViewModel(object):
         }
         menu = self.view.context_menu
         for i in xrange(11):
-            state = menu_state[type][i]
+            state = context_matrix[type][i]
             if state == 0:
                 menu.entryconfigure(i, state=tk.DISABLED)
             elif state == 1:
