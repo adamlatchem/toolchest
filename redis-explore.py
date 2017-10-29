@@ -11,6 +11,7 @@ class RedisConnect(GUIApplication.GUIApplication):
     def __init__(self, root):
         super(RedisConnect, self).__init__(root, 'REDIS Connection')
         self.database_list = None
+        self.explorer = None
         self.create_widgets(root)
         self.apply_style(root, 'white')
 
@@ -52,7 +53,7 @@ class RedisConnect(GUIApplication.GUIApplication):
                 self.database_list.destroy()
             self.database_list = tk.OptionMenu(self.root,
                                                self.database, *databases)
-            self.database_list.grid(column = 1, row = 4, sticky=tk.NSEW)
+            self.database_list.grid(column=1, row=4, sticky=tk.NSEW)
             self.database_label.grid()
             self.connect_button.config(text='Disconnect',
                                        command=self.cmd_disconnect)
@@ -71,8 +72,11 @@ class RedisConnect(GUIApplication.GUIApplication):
         for w in [self.host_label, self.host_entry, self.port_label,
                   self.port_entry, self.password_label, self.password_entry]:
             w.grid()
-        self.explorer.root.destroy()
-        self.database_list.grid_remove()
+        if self.explorer:
+            self.explorer.root.destroy()
+            self.explorer = None
+        if self.database_list:
+            self.database_list.grid_remove()
         self.database_label.grid_remove()
 
     def cmd_change_db(self, var, two, mode):
@@ -88,6 +92,7 @@ class RedisConnect(GUIApplication.GUIApplication):
             port = port, 
             db = db, 
             password = self.password_entry.get())
+        self.r.client_setname('REDISExplorer')
         top_level = tk.Toplevel()
         self.explorer = RedisExplorer(
             top_level,
