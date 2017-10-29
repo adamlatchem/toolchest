@@ -412,9 +412,7 @@ class JSONEdit(GUIApplication.GUIApplication):
 
         self.item_text, self.item_text_scrolled = self.create_scrolled(
             self.object_frame, tk.Text, True, True)
-        bindtags = list(self.item_text.bindtags())
-        bindtags.insert(2, 'KeyUp')
-        self.item_text.bindtags(tuple(bindtags))
+        self.extend_bindtags(self.item_text)
 
         self.item_text_scrolled.grid(
             column=0, row=1, columnspan=2, sticky=tk.NSEW)

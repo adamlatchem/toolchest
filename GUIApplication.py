@@ -98,6 +98,11 @@ class GUIApplication(object):
         host_entry.grid(column=column + 1, row=row)
         return (host_label, host_entry)
 
+    def extend_bindtags(self, widget):
+        bindtags = list(widget.bindtags())
+        bindtags.insert(2, 'KeyUp')
+        widget.bindtags(tuple(bindtags))
+
     def show_error(self, exception):
         type, exception, traceback = sys.exc_info()
         exception_handler(type, exception, traceback)
