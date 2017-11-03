@@ -33,7 +33,8 @@ class Model(object):
         if filename is None:
             filename = self.filename
         with open(filename, 'w') as file:
-            json.dump(self.object, file)
+            json.dump(self.object, file, sort_keys=True, indent=4,
+            separators=(',', ': '))
         self.filename = filename
 
 
