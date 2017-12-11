@@ -64,6 +64,7 @@ class ViewModel(object):
         self.bind_menu(cm, 'Delete', command=self.cmd_delete)
         self.view.treeview.bind('<<TreeviewSelect>>', self.on_treeview_select)
         self.view.treeview.bind('<Button-2>', self.on_show_menu)
+        self.view.treeview.bind('<Button-3>', self.on_show_menu)
         self.view.treeview.bind('<Button-1>', self.on_hide_menu)
         self.view.parent_label.bind('<Button-1>', self.on_hide_menu)
         self.view.parent_name.bind('<Button-1>', self.on_hide_menu)
@@ -162,12 +163,14 @@ class ViewModel(object):
             type = self.item_type[self.item]
             if type == bool:
                 text = text.lower()
+            elif type == str:
+                type = lambda x : unicode(x).encode('utf-8')
             elif type in (int, float):
                 try:
                     type(text)
                 except:
                     text = '0'
-            text = str(type(text))
+            text = type(text)
             self.view.treeview.item(self.item, text=text)
             self.view.cmd_dirty()
 
@@ -177,6 +180,8 @@ class ViewModel(object):
             self.edit(selected)
 
     def on_show_menu(self, event):
+        if self.view.root.focus_get() == None:
+            return
         item = self.event_to_item(event)
         self.menu_for_item(item)
         self.view.treeview.selection('set', item)
@@ -267,6 +272,7 @@ class ViewModel(object):
             key_name = tkSimpleDialog.askstring('Key name', 'Name:')
             if key_name is None or len(key_name) == 0:
                 return
+            key_name = unicode(key_name, 'utf-8')
             parent_node = self.view.treeview.insert(
                 parent_node, 'end', text=key_name)
             self.item_type[parent_node] = 'key'
@@ -404,7 +410,7 @@ class JSONEdit(GUIApplication.GUIApplication):
         self.object_frame.grid(column=1, row=0, sticky=tk.NSEW)
 
         self.parent_label = tk.Label(
-            self.object_frame, text='Parent :', foreground='blue', anchor=tk.W)
+            self.object_frame, text='Key :', foreground='blue', anchor=tk.W)
         self.parent_label.grid(column=0, row=0)
 
         self.parent_name = tk.Entry(self.object_frame)
