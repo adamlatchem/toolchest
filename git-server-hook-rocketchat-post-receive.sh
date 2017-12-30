@@ -299,7 +299,6 @@ function notify() {
   fi
 
   curl -X POST -H "Content-Type: application/json" --data "$payload" "$webhook_url" >/dev/null
-  echo curl -X POST -H "Content-Type: application/json" --data "$payload" "$webhook_url"
 }
 
 ################################################################################
