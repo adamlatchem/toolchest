@@ -215,7 +215,7 @@ class ViewModel(object):
             if obj is None:
                 text = 'null'
             else:
-                text = str(obj)
+                text = unicode(obj)
             node = self.view.treeview.insert(parent_node, 'end', text=text)
 
         self.item_type[node] = type(obj)
@@ -257,7 +257,7 @@ class ViewModel(object):
         elif type == 'null':
             return 'null'
         else:
-            raise Exception('unknown type ' + str(type))
+            raise Exception('unknown type ' + unicode(type))
 
     def new_tree(self):
         self.object_to_tree(self.model.object)
