@@ -2,13 +2,17 @@
 #
 # Template for MVVM applications.
 #
-import ttk
-import tkFileDialog
-import tkSimpleDialog
 import json
 import sys
 import GUIApplication
-from   GUIApplication import tk
+import tkinter
+import tkinter.ttk
+try:
+    import tkFileDialog
+    import tkSimpleDialog
+except:
+    import tkinter.filedialog as tkFileDialog
+    import tkinter.simpledialog as tkSimpleDialog
 
 
 class Model(object):
@@ -117,8 +121,8 @@ class ViewModel(object):
             self.update_title()
 
     def on_item_keyup(self, event):
-        if self.item <> None:
-            text = self.view.item_text.get(1.0, tk.END)[:-1]
+        if not self.item is None:
+            text = self.view.item_text.get(1.0, tkinter.END)[:-1]
             type = self.item_type[self.item]
             self.view.treeview.item(self.item, text=text)
             self.view.cmd_dirty()
@@ -129,9 +133,11 @@ class ViewModel(object):
             self.edit(selected)
 
     def on_show_menu(self, event):
+        if self.view.root.focus_get() is None:
+            return
         item = self.event_to_item(event)
         self.menu_for_item(item)
-        self.view.treeview.selection('set', item)
+        self.view.treeview.selection_set(item)
         self.view.context_menu.post(event.x_root, event.y_root)
 
     def on_hide_menu(self, event):
@@ -209,7 +215,7 @@ class ViewModel(object):
     def new_tree(self):
         self.object_to_tree(self.model.object)
         self.item = None
-        self.view.item_text.delete(1.0, tk.END)
+        self.view.item_text.delete(1.0, tkinter.END)
         self.update_title()
 
     def new_node(self, type, text):
@@ -231,13 +237,13 @@ class ViewModel(object):
     def edit(self, item):
         type = self.item_type[item]
         text = self.view.treeview.item(item, 'text')
-        self.view.item_text.delete(1.0, tk.END)
+        self.view.item_text.delete(1.0, tkinter.END)
         self.view.item_text.insert(1.0, text)
         self.item = item
 
     def update_title(self):
         filename = self.model.filename[-50:]
-        if filename <> self.model.filename:
+        if filename != self.model.filename:
             filename = '... ' + filename
         self.view.title("Template " + filename)
 
@@ -252,16 +258,16 @@ class ViewModel(object):
         for i in xrange(5):
             state = context_matrix[type][i]
             if state == 0:
-                menu.entryconfigure(i, state=tk.DISABLED)
+                menu.entryconfigure(i, state=tkinter.DISABLED)
             elif state == 1:
-                menu.entryconfigure(i, state=tk.NORMAL)
+                menu.entryconfigure(i, state=tkinter.NORMAL)
             elif state == 3:
                 parent = self.view.treeview.parent(item) 
                 parent_type = self.item_type[parent]
                 if parent_type == list:
-                    menu.entryconfigure(i, state=tk.NORMAL)
+                    menu.entryconfigure(i, state=tkinter.NORMAL)
                 else:
-                    menu.entryconfigure(i, state=tk.DISABLED) 
+                    menu.entryconfigure(i, state=tkinter.DISABLED) 
 
     def move_selected(self, offset):
         selected = self.selected()
@@ -289,9 +295,9 @@ class Template(GUIApplication.GUIApplication):
         self.viewmodel = ViewModel(self)
 
     def create_menu(self):
-        self.menu = tk.Menu(self.root)
+        self.menu = tkinter.Menu(self.root)
 
-        self.menu_file = tk.Menu(self.menu, tearoff=False)
+        self.menu_file = tkinter.Menu(self.menu, tearoff=False)
         self.menu_file.add_command(label='New')
         self.menu_file.add_command(label='Open ...')
         self.menu_file.add_separator()
@@ -304,7 +310,7 @@ class Template(GUIApplication.GUIApplication):
         self.menu.add_cascade(label='File', menu=self.menu_file)
 
     def create_context_menu(self):
-        menu = tk.Menu(self.root, tearoff=False)
+        menu = tkinter.Menu(self.root, tearoff=False)
         menu.add_command(label='Add')
         menu.add_command(label='Delete')
         menu.add_separator()
@@ -318,19 +324,19 @@ class Template(GUIApplication.GUIApplication):
         self.create_context_menu()
 
         self.treeview, self.treeview_scrolled = self.create_scrolled(
-            self.root, ttk.Treeview, True, True)
-        self.treeview_scrolled.grid(column=0, row=0, sticky=tk.NSEW)
+            self.root, tkinter.ttk.Treeview, True, True)
+        self.treeview_scrolled.grid(column=0, row=0, sticky=tkinter.NSEW)
 
-        self.object_frame = tk.Frame(self.root, bg='lightgrey')
+        self.object_frame = tkinter.Frame(self.root, bg='lightgrey')
         self.object_frame.grid()
-        self.object_frame.grid(column=1, row=0, sticky=tk.NSEW)
+        self.object_frame.grid(column=1, row=0, sticky=tkinter.NSEW)
 
         self.item_text, self.item_text_scrolled = self.create_scrolled(
-            self.object_frame, tk.Text, True, True)
+            self.object_frame, tkinter.Text, True, True)
         self.extend_bindtags(self.item_text)
 
         self.item_text_scrolled.grid(
-            column=0, row=0, columnspan=2, sticky=tk.NSEW)
+            column=0, row=0, columnspan=2, sticky=tkinter.NSEW)
 
         self.grid_weights(self.object_frame, [1], [1])
 

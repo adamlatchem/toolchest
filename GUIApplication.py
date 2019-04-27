@@ -2,19 +2,20 @@
 #
 # Base class for a GUI Application using Tk
 #
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
-import tkMessageBox
+from __future__ import print_function
+from builtins import zip
+from builtins import str
+from builtins import range
+import tkinter
+import tkinter.messagebox
 import traceback
 import sys
 
 oldhook = sys.excepthook
 def exception_handler(exctype, exception, traceback):
     global oldhook
-    print traceback
-    tkMessageBox.showerror(title='Error', message=exception.message)
+    print(traceback)
+    tkinter.messagebox.showerror(title='Error', message=str(exception))
     if oldhook:
         oldhook(exctype, exception, traceback)
 sys.excepthook = exception_handler
@@ -31,6 +32,7 @@ class GUIApplication(object):
         self.title(title)
         self.root.grid()
         self.root.report_callback_exception = self.report_callback_exception
+        self.root.protocol("WM_DELETE_WINDOW", self.cmd_quit)
 
     def title(self, title):
         self._title = title
@@ -50,7 +52,7 @@ class GUIApplication(object):
         configure_if(widget, 'disabledforeground', 'darkred')
         configure_if(widget, 'highlightthickness', 0)
         configure_if(widget, 'highlightbackground', bg)
-        configure_if(widget, 'relief', tk.FLAT)
+        configure_if(widget, 'relief', tkinter.FLAT)
         configure_if(widget, 'borderwidth', 0)
 
         if widget_class == 'Frame':
@@ -62,26 +64,26 @@ class GUIApplication(object):
             self.apply_style(child, bg)
 
     def create_scrolled(self, parent, cls, vertical, horizontal):
-        outer = tk.Frame(parent)
+        outer = tkinter.Frame(parent)
         outer.configure(background = parent['background'])
         outer.columnconfigure(0, weight=1)
         outer.rowconfigure(0, weight=1)
 
         if vertical:
-            vsb = tk.Scrollbar(outer, orient=tk.VERTICAL)
-            vsb.grid(column=1, row=0, sticky=tk.NS)
+            vsb = tkinter.Scrollbar(outer, orient=tkinter.VERTICAL)
+            vsb.grid(column=1, row=0, sticky=tkinter.NS)
         if horizontal:
-            hsb = tk.Scrollbar(outer, orient=tk.HORIZONTAL)
-            hsb.grid(column=0, row=1, sticky=tk.EW)
+            hsb = tkinter.Scrollbar(outer, orient=tkinter.HORIZONTAL)
+            hsb.grid(column=0, row=1, sticky=tkinter.EW)
 
         inner = cls(outer)
-        if cls == tk.Text:
-            inner.configure(wrap=tk.NONE)
+        if cls == tkinter.Text:
+            inner.configure(wrap=tkinter.NONE)
         if vertical:
             inner.config(yscrollcommand = vsb.set)
         if horizontal:
             inner.config(xscrollcommand = hsb.set)
-        inner.grid(column=0, row=0, sticky=tk.NSEW)
+        inner.grid(column=0, row=0, sticky=tkinter.NSEW)
 
         if vertical:
             vsb.config(command = inner.yview)
@@ -90,9 +92,9 @@ class GUIApplication(object):
         return inner, outer
 
     def labelled_entry(self, text, value, column, row):
-        host_label = tk.Label(self.root, text=text)
-        host_label.grid(column=column, row=row, sticky=tk.E)
-        host_entry = tk.Entry(self.root)
+        host_label = tkinter.Label(self.root, text=text)
+        host_label.grid(column=column, row=row, sticky=tkinter.E)
+        host_entry = tkinter.Entry(self.root)
         if value:
             host_entry.insert(0, value)
         host_entry.grid(column=column + 1, row=row)
@@ -113,24 +115,24 @@ class GUIApplication(object):
             column_weights = [column_weights]
         if not type(row_weights) is list:
             row_weights = [row_weights]
-        for r, rw in zip(xrange(rows), row_weights):
+        for r, rw in zip(range(rows), row_weights):
             grid.rowconfigure(r, weight=rw)
-        for c, cw in zip(xrange(columns), column_weights):
+        for c, cw in zip(range(columns), column_weights):
             grid.columnconfigure(c, weight=cw)
 
     def report_callback_exception(self, type, value, tb):
         exception_handler(type, value, tb)
 
     def on_not_implemented(self, event=None):
-        tkMessageBox.showerror(title='Error', message='Not implemented.')
+        tkinter.messagebox.showerror(title='Error', message='Not implemented.')
 
     def cmd_quit(self, force=False):
         if self._is_dirty:
-            result = tkMessageBox.askquestion(
+            result = tkinter.messagebox.askquestion(
                 'Confirm Quit',
                 'There are unsaved changes. Quit without saving?',
                 icon='warning')
-            if result <> 'yes':
+            if result != 'yes':
                 return
         if force:
             self.root.destroy()
@@ -149,7 +151,7 @@ class GUIApplication(object):
 
 def main(application_class):
     """ Call to start an application of type application_class """
-    root = tk.Tk()
+    root = tkinter.Tk()
     app = application_class(root)
-    tk.mainloop()
+    tkinter.mainloop()
 

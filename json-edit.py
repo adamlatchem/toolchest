@@ -3,14 +3,20 @@
 # Simple JSON editor that allows strings to be edited
 # with embedded new lines
 #
-import ttk
-import tkFileDialog
-import tkSimpleDialog
+from builtins import str
+from builtins import range
 import json
 import os
 import sys
 import GUIApplication
-from   GUIApplication import tk
+import tkinter
+import tkinter.ttk as ttk
+try:
+    import tkSimpleDialog
+    import tkFileDialog
+except:
+    import tkinter.simpledialog as tkSimpleDialog
+    import tkinter.filedialog as tkFileDialog
 
 
 class Model(object):
@@ -158,13 +164,13 @@ class ViewModel(object):
             self.update_title()
 
     def on_item_keyup(self, event):
-        if self.item <> None:
-            text = self.view.item_text.get(1.0, tk.END)[:-1]
+        if not self.item is None:
+            text = self.view.item_text.get(1.0, tkinter.END)[:-1]
             type = self.item_type[self.item]
             if type == bool:
                 text = text.lower()
             elif type == str:
-                type = lambda x : unicode(x).encode('utf-8')
+                type = lambda x : str(x).encode('utf-8')
             elif type in (int, float):
                 try:
                     type(text)
@@ -180,7 +186,7 @@ class ViewModel(object):
             self.edit(selected)
 
     def on_show_menu(self, event):
-        if self.view.root.focus_get() == None:
+        if self.view.root.focus_get() is None:
             return
         item = self.event_to_item(event)
         self.menu_for_item(item)
@@ -215,7 +221,7 @@ class ViewModel(object):
             if obj is None:
                 text = 'null'
             else:
-                text = unicode(obj)
+                text = str(obj)
             node = self.view.treeview.insert(parent_node, 'end', text=text)
 
         self.item_type[node] = type(obj)
@@ -245,7 +251,7 @@ class ViewModel(object):
             return '[' + inner + ']'
         elif type in (int, float):
             return tree.item(node)['text']
-        elif type in (unicode, str):
+        elif type == str:
             string = tree.item(node)['text']
             string = string.replace('\\', '\\\\')
             string = string.replace('"', '\\"')
@@ -257,13 +263,13 @@ class ViewModel(object):
         elif type == 'null':
             return 'null'
         else:
-            raise Exception('unknown type ' + unicode(type))
+            raise Exception('unknown type ' + str(type))
 
     def new_tree(self):
         self.object_to_tree(self.model.object)
         self.item = None
         self.set_parent_name('')
-        self.view.item_text.delete(1.0, tk.END)
+        self.view.item_text.delete(1.0, tkinter.END)
         self.update_title()
 
     def new_node(self, type, text):
@@ -272,7 +278,7 @@ class ViewModel(object):
             key_name = tkSimpleDialog.askstring('Key name', 'Name:')
             if key_name is None or len(key_name) == 0:
                 return
-            key_name = unicode(key_name, 'utf-8')
+            key_name = str(key_name)
             parent_node = self.view.treeview.insert(
                 parent_node, 'end', text=key_name)
             self.item_type[parent_node] = 'key'
@@ -280,7 +286,7 @@ class ViewModel(object):
         if type is None:
             type = 'null'
         self.item_type[node] = type
-        self.view.treeview.selection('set', node)
+        self.view.treeview.selection_set(node)
         self.view.treeview.see(node)
         self.view.cmd_dirty()
         return node
@@ -295,20 +301,20 @@ class ViewModel(object):
             text = self.view.treeview.item(item, 'text')
 
             self.set_parent_name(parent_text)
-            self.view.item_text.delete(1.0, tk.END)
+            self.view.item_text.delete(1.0, tkinter.END)
             self.view.item_text.insert(1.0, text)
 
             self.item = item
 
     def set_parent_name(self, text):
-        self.view.parent_name.configure(state=tk.NORMAL)
-        self.view.parent_name.delete(0, tk.END)
+        self.view.parent_name.configure(state=tkinter.NORMAL)
+        self.view.parent_name.delete(0, tkinter.END)
         self.view.parent_name.insert(0, text)
-        self.view.parent_name.configure(state=tk.DISABLED)
+        self.view.parent_name.configure(state=tkinter.DISABLED)
 
     def update_title(self):
         filename = self.model.filename[-50:]
-        if filename <> self.model.filename:
+        if filename != self.model.filename:
             filename = '... ' + filename
         self.view.title("JSONEdit " + filename)
 
@@ -319,7 +325,6 @@ class ViewModel(object):
             'key'   : [0,1,0,0,0,0,0,0,0,2,1],
             dict    : [1,0,1,3,3,1,1,1,1,2,1],
             list    : [1,0,1,3,3,1,1,1,1,2,1],
-            unicode : [0,0,0,3,3,0,0,0,0,2,1],
             str     : [0,0,0,3,3,0,0,0,0,2,1],
             int     : [0,0,0,3,3,0,0,0,0,2,1],
             float   : [0,0,0,3,3,0,0,0,0,2,1],
@@ -327,19 +332,19 @@ class ViewModel(object):
             'null'  : [0,0,0,3,3,0,0,0,0,2,1],
         }
         menu = self.view.context_menu
-        for i in xrange(11):
+        for i in range(11):
             state = context_matrix[type][i]
             if state == 0:
-                menu.entryconfigure(i, state=tk.DISABLED)
+                menu.entryconfigure(i, state=tkinter.DISABLED)
             elif state == 1:
-                menu.entryconfigure(i, state=tk.NORMAL)
+                menu.entryconfigure(i, state=tkinter.NORMAL)
             elif state == 3:
                 parent = self.view.treeview.parent(item) 
                 parent_type = self.item_type[parent]
                 if parent_type == list:
-                    menu.entryconfigure(i, state=tk.NORMAL)
+                    menu.entryconfigure(i, state=tkinter.NORMAL)
                 else:
-                    menu.entryconfigure(i, state=tk.DISABLED) 
+                    menu.entryconfigure(i, state=tkinter.DISABLED) 
 
     def move_selected(self, offset):
         selected = self.selected()
@@ -367,9 +372,9 @@ class JSONEdit(GUIApplication.GUIApplication):
         self.viewmodel = ViewModel(self)
 
     def create_menu(self):
-        self.menu = tk.Menu(self.root)
+        self.menu = tkinter.Menu(self.root)
 
-        self.menu_file = tk.Menu(self.menu, tearoff=False)
+        self.menu_file = tkinter.Menu(self.menu, tearoff=False)
         self.menu_file.add_command(label='New')
         self.menu_file.add_command(label='Open ...')
         self.menu_file.add_separator()
@@ -382,7 +387,7 @@ class JSONEdit(GUIApplication.GUIApplication):
         self.menu.add_cascade(label='File', menu=self.menu_file)
 
     def create_context_menu(self):
-        menu = tk.Menu(self.root, tearoff=False)
+        menu = tkinter.Menu(self.root, tearoff=False)
         menu.add_command(label='Add object')
         menu.add_command(label='Rename')
         menu.add_command(label='Add array')
@@ -403,26 +408,26 @@ class JSONEdit(GUIApplication.GUIApplication):
 
         self.treeview, self.treeview_scrolled = self.create_scrolled(
             self.root, ttk.Treeview, True, True)
-        self.treeview_scrolled.grid(column=0, row=0, sticky=tk.NSEW)
+        self.treeview_scrolled.grid(column=0, row=0, sticky=tkinter.NSEW)
 
-        self.object_frame = tk.Frame(self.root, bg='lightgrey')
+        self.object_frame = tkinter.Frame(self.root, bg='lightgrey')
         self.object_frame.grid()
-        self.object_frame.grid(column=1, row=0, sticky=tk.NSEW)
+        self.object_frame.grid(column=1, row=0, sticky=tkinter.NSEW)
 
-        self.parent_label = tk.Label(
-            self.object_frame, text='Key :', foreground='blue', anchor=tk.W)
+        self.parent_label = tkinter.Label(
+            self.object_frame, text='Key :', foreground='blue', anchor=tkinter.W)
         self.parent_label.grid(column=0, row=0)
 
-        self.parent_name = tk.Entry(self.object_frame)
-        self.parent_name.grid(column=1, row=0, sticky=tk.EW)
-        self.parent_name.config(state=tk.DISABLED)
+        self.parent_name = tkinter.Entry(self.object_frame)
+        self.parent_name.grid(column=1, row=0, sticky=tkinter.EW)
+        self.parent_name.config(state=tkinter.DISABLED)
 
         self.item_text, self.item_text_scrolled = self.create_scrolled(
-            self.object_frame, tk.Text, True, True)
+            self.object_frame, tkinter.Text, True, True)
         self.extend_bindtags(self.item_text)
 
         self.item_text_scrolled.grid(
-            column=0, row=1, columnspan=2, sticky=tk.NSEW)
+            column=0, row=1, columnspan=2, sticky=tkinter.NSEW)
 
         self.grid_weights(self.object_frame, [0, 1], [0, 1])
 
