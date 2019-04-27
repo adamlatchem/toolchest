@@ -2,6 +2,9 @@
 #
 # Template for MVVM applications.
 #
+from builtins import str
+from builtins import range
+from builtins import object
 import json
 import sys
 import GUIApplication
@@ -198,7 +201,7 @@ class ViewModel(object):
             return '[' + inner + ']'
         elif type in (int, float):
             return tree.item(node)['text']
-        elif type in (unicode, str):
+        elif type in (str, str):
             string = tree.item(node)['text']
             string = string.replace('\\', '\\\\')
             string = string.replace('"', '\\"')
@@ -229,7 +232,7 @@ class ViewModel(object):
             self.item_type[parent_node] = 'key'
         node = self.view.treeview.insert(parent_node, 'end', text=text)
         self.item_type[node] = type
-        self.view.treeview.selection('set', node)
+        self.view.treeview.selection_set(node)
         self.view.treeview.see(node)
         self.view.cmd_dirty()
         return node
@@ -255,7 +258,7 @@ class ViewModel(object):
             'key'   : [0,1,2,1,1],
         }
         menu = self.view.context_menu
-        for i in xrange(5):
+        for i in range(5):
             state = context_matrix[type][i]
             if state == 0:
                 menu.entryconfigure(i, state=tkinter.DISABLED)
