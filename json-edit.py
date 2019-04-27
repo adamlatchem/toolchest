@@ -29,7 +29,7 @@ class Model(object):
         self.object = {}
 
     def load(self, sourcefile):
-        if sourcefile:
+        if type(sourcefile) == str:
             sourcefile = open(sourcefile, 'r')
         self.filename = sourcefile.name
         json_text = sourcefile.read()
@@ -84,7 +84,7 @@ class ViewModel(object):
 
         if len(sys.argv) > 1:
             self.model = Model()
-            self.model.load(sys.argv[1])
+            self.model.load(str(sys.argv[1]))
             self.new_tree()
         else:
             self.cmd_new()
@@ -425,7 +425,7 @@ class JSONEdit(GUIApplication.GUIApplication):
         self.pane.add(self.treeview_scrolled)
         self.treeview.heading('#0', text='Document Tree')
 
-        self.object_frame = tkinter.Frame(self.root, bg='lightgrey')
+        self.object_frame = tkinter.Frame(self.pane, bg='lightgrey')
         self.object_frame.grid()
         self.pane.add(self.object_frame)
 
