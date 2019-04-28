@@ -6,6 +6,7 @@ from __future__ import print_function
 from builtins import zip
 from builtins import str
 from builtins import range
+import os
 import tkinter
 import tkinter.messagebox
 import traceback
@@ -152,6 +153,17 @@ class GUIApplication(object):
 def main(application_class):
     """ Call to start an application of type application_class """
     root = tkinter.Tk()
+
+    if getattr(sys, 'frozen', False):
+        bundle_dir = sys._MEIPASS
+    else:
+        bundle_dir = os.path.dirname(os.path.abspath(__file__))
+    file, ext  = os.path.splitext(sys.argv[0])
+    icon_file = os.path.join(bundle_dir, file + '.ico')
+    if os.path.isfile(icon_file):
+        print (icon_file)
+        root.iconbitmap(icon_file)
+
     app = application_class(root)
     tkinter.mainloop()
 
