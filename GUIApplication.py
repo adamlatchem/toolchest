@@ -159,6 +159,7 @@ def main(application_class):
     else:
         bundle_dir = os.path.dirname(os.path.abspath(__file__))
     file, ext  = os.path.splitext(sys.argv[0])
+    file = os.path.basename(file)
     icon_file = os.path.join(bundle_dir, file + '.ico')
     if os.path.isfile(icon_file):
         print (icon_file)
