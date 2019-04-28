@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666667 8.4666667"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="json-edit-icon.svg"
+   inkscape:export-filename="json-edit-icon.png"
+   inkscape:export-xdpi="192"
+   inkscape:export-ydpi="192">
+  <title
+     id="title1671">JSON Edit Icon</title>
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="WhiteBlack">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="0"
+         id="stop856" />
+      <stop
+         style="stop-color:#000000;stop-opacity:1"
+         offset="1"
+         id="stop858" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#WhiteBlack"
+       id="linearGradient1669"
+       gradientUnits="userSpaceOnUse"
+       x1="113.64764"
+       y1="69.292465"
+       x2="170.45999"
+       y2="183.09494" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="24.240197"
+     inkscape:cx="9.8505803"
+     inkscape:cy="15.941069"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer2"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1029"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     units="px"
+     inkscape:pagecheckerboard="true"
+     borderlayer="true"
+     inkscape:showpageshadow="true" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>JSON Edit Icon</dc:title>
+        <dc:date>28 April 2019</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Adam Latchem</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>Intrepid Universe</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by/4.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Background"
+     style="opacity:1">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.49999997;stroke-opacity:1"
+       id="rect1663"
+       width="8.4666662"
+       height="8.4666662"
+       x="0"
+       y="4.4504802e-07"
+       ry="1.0583334"
+       rx="1.0583334" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Foreground"
+     transform="translate(0,-288.53333)">
+    <g
+       id="g1118"
+       inkscape:label="O"
+       transform="matrix(0.04357178,0,0,0.04384182,-2.7806186,287.14413)"
+       style="stroke-width:22.87984467">
+      <path
+         sodipodi:nodetypes="csscsssc"
+         inkscape:connector-curvature="0"
+         id="path832"
+         d="m 161.03698,86.70376 c -32.32064,-12.572411 -57.69488,19.80199 -57.62618,54.87475 0.0724,36.95911 20.7714,72.8708 60.17037,71.09335 109.57698,-4.94349 110.47672,-166.394086 -0.90943,-168.904043 28.8771,1.943565 54.96348,34.305536 55.47818,66.139963 0.48619,30.07119 -15.4748,62.24715 -44.33331,62.30627 -18.98181,0.0389 -35.67657,-14.43996 -36.94442,-43.33481 -0.86801,-19.78242 9.9945,-37.227841 24.16479,-42.17548 z"
+         style="fill:url(#linearGradient1669);fill-opacity:1;stroke:none;stroke-width:6.05362558px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         inkscape:label="Swirl" />
+      <use
+         transform="rotate(-180,160.97465,128.24588)"
+         height="100%"
+         width="100%"
+         id="use866"
+         xlink:href="#path832"
+         y="0"
+         x="0"
+         inkscape:label="SwirlClone"
+         style="stroke-width:22.87984467" />
+    </g>
+  </g>
+</svg>
