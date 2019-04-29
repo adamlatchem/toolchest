@@ -329,6 +329,7 @@ class ViewModel(object):
     def menu_for_item(self, item_id):
         type = self.item_type[item_id]
         context_matrix = {
+            'root'  : [0,0,0,0,0,0,0,0,0,2,0],
             dict    : [1,4,1,3,3,1,1,1,1,2,1],
             list    : [1,4,1,3,3,1,1,1,1,2,1],
             str     : [0,4,0,3,3,0,0,0,0,2,1],
