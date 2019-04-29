@@ -15,6 +15,7 @@ try:
 except:
     import tkinter.simpledialog as tkSimpleDialog
     import tkinter.filedialog as tkFileDialog
+import webbrowser
 
 
 def augment(text, augmentation):
@@ -62,6 +63,7 @@ class ViewModel(object):
         self.bind_menu(view.menu_file, 'Save', command=self.cmd_save)
         self.bind_menu(view.menu_file, 'Save As ...', command=self.cmd_save_as)
         self.bind_menu(view.menu_file, 'Quit', command=view.cmd_quit)
+        self.bind_menu(view.menu_help, 'Documentation', command=self.cmd_documentation)
         self.bind_menu(cm, 'Add object', command=self.cmd_add_object)
         self.bind_menu(cm, 'Rename', command=self.cmd_rename)
         self.bind_menu(cm, 'Add array', command=self.cmd_add_array)
@@ -164,6 +166,9 @@ class ViewModel(object):
             self.model.save(filename)
             self.view.cmd_clean()
             self.update_title()
+
+    def cmd_documentation(self):
+        webbrowser.open_new('https://www.intrepiduniverse.com/projects/jsonEditor.html')
 
     def on_item_keyup(self, event):
         if not self.item is None:
@@ -395,8 +400,13 @@ class JSONEdit(GUIApplication.GUIApplication):
         self.menu_file.add_separator()
         self.menu_file.add_command(label='Quit')
 
+        self.menu_help = tkinter.Menu(self.menu, tearoff=False)
+        self.menu_help.add_command(label='Version 1.0.0', state=tkinter.DISABLED)
+        self.menu_help.add_command(label='Documentation')
+
         self.root.config(menu=self.menu)
         self.menu.add_cascade(label='File', menu=self.menu_file)
+        self.menu.add_cascade(label='Help', menu=self.menu_help)
 
     def create_context_menu(self):
         menu = tkinter.Menu(self.root, tearoff=False)
