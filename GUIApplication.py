@@ -162,8 +162,10 @@ def main(application_class):
     file = os.path.basename(file)
     icon_file = os.path.join(bundle_dir, file + '.ico')
     if os.path.isfile(icon_file):
-        print (icon_file)
-        root.iconbitmap(icon_file)
+        try:
+            root.iconbitmap(icon_file)
+        except:
+            pass
 
     app = application_class(root)
     tkinter.mainloop()
