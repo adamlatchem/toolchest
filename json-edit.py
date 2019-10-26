@@ -259,15 +259,15 @@ class ViewModel(object):
             for key_id in tree.get_children(node_id):
                 if inner:
                     inner += ', '
-                value = self.tree_to_json(key_id)
-                inner += '"' + tree.item(key_id)['values'][0] + '": ' + value
+                value = str(self.tree_to_json(key_id))
+                inner += '"' + str(tree.item(key_id)['values'][0]) + '": ' + value
             return '{' + inner + '}'
         elif type == list:
             inner = ''
             for key_id in tree.get_children(node_id):
                 if inner:
                     inner += ', '
-                inner += self.tree_to_json(key_id)
+                inner += str(self.tree_to_json(key_id))
             return '[' + inner + ']'
         elif type in (int, float):
             return tree.item(node_id)['values'][1]
