@@ -2,20 +2,20 @@
 #
 # Template for MVVM applications.
 #
-from builtins import str
-from builtins import range
-from builtins import object
+from __future__ import generators, unicode_literals
 import json
 import sys
 import GUIApplication
-import tkinter
-import tkinter.ttk
 try:
-    import tkFileDialog
-    import tkSimpleDialog
+    import tkinter
+    import tkinter.ttk as ttk
+    import tkinter.filedialog as filedialog
+    import tkinter.simpledialog as simpledialog
 except:
-    import tkinter.filedialog as tkFileDialog
-    import tkinter.simpledialog as tkSimpleDialog
+    import Tkinter as tkinter
+    import ttk
+    import tkFileDialog as filedialog
+    import tkSimpleDialog as simpledialog
 
 
 class Model(object):
@@ -96,7 +96,7 @@ class ViewModel(object):
         self.new_tree()
 
     def cmd_open(self):
-        file = tkFileDialog.askopenfile(
+        file = filedialog.askopenfile(
             filetypes=self.filetypes,
             title='Open JSON File',
             parent=self.view.root)
@@ -113,7 +113,7 @@ class ViewModel(object):
         self.update_title()
 
     def cmd_save_as(self):
-        filename = tkFileDialog.asksaveasfilename(
+        filename = filedialog.asksaveasfilename(
             filetypes=self.filetypes,
             title='Save JSON As',
             parent=self.view.root)
@@ -224,7 +224,7 @@ class ViewModel(object):
     def new_node(self, type, text):
         parent_node = self.selected()
         if self.item_type[parent_node] == dict:
-            key_name = tkSimpleDialog.askstring('Key name', 'Name:')
+            key_name = simpledialog.askstring('Key name', 'Name:')
             if key_name is None or len(key_name) == 0:
                 return
             parent_node = self.view.treeview.insert(
@@ -327,7 +327,7 @@ class Template(GUIApplication.GUIApplication):
         self.create_context_menu()
 
         self.treeview, self.treeview_scrolled = self.create_scrolled(
-            self.root, tkinter.ttk.Treeview, True, True)
+            self.root, ttk.Treeview, True, True)
         self.treeview_scrolled.grid(column=0, row=0, sticky=tkinter.NSEW)
 
         self.object_frame = tkinter.Frame(self.root, bg='lightgrey')

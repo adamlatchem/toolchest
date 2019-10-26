@@ -2,13 +2,14 @@
 #
 # Base class for a GUI Application using Tk
 #
-from __future__ import print_function
-from builtins import zip
-from builtins import str
-from builtins import range
+from __future__ import generators, print_function, unicode_literals
 import os
-import tkinter
-import tkinter.messagebox
+try:
+    import tkinter
+    import tkinter.messagebox as messagebox
+except:
+    import Tkinter as tkinter
+    import tkMessageBox as messagebox
 import traceback
 import sys
 
@@ -16,7 +17,7 @@ oldhook = sys.excepthook
 def exception_handler(exctype, exception, traceback):
     global oldhook
     print(traceback)
-    tkinter.messagebox.showerror(title='Error', message=str(exception))
+    messagebox.showerror(title='Error', message=str(exception))
     if oldhook:
         oldhook(exctype, exception, traceback)
 sys.excepthook = exception_handler
@@ -125,11 +126,11 @@ class GUIApplication(object):
         exception_handler(type, value, tb)
 
     def on_not_implemented(self, event=None):
-        tkinter.messagebox.showerror(title='Error', message='Not implemented.')
+        messagebox.showerror(title='Error', message='Not implemented.')
 
     def cmd_quit(self, force=False):
         if self._is_dirty:
-            result = tkinter.messagebox.askquestion(
+            result = messagebox.askquestion(
                 'Confirm Quit',
                 'There are unsaved changes. Quit without saving?',
                 icon='warning')

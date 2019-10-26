@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 #
 # Simple JSON editor that allows strings to be edited with embedded new lines
-from builtins import range
-from builtins import str
+from __future__ import generators, unicode_literals, print_function
 import json
 import os
 import sys
 import GUIApplication
-import tkinter
-import tkinter.ttk as ttk
 try:
-    import tkSimpleDialog
-    import tkFileDialog
+    import tkinter
+    import tkinter.ttk as ttk
+    import tkinter.simpledialog as simpledialog
+    import tkinter.filedialog as filedialog
 except:
-    import tkinter.simpledialog as tkSimpleDialog
-    import tkinter.filedialog as tkFileDialog
+    import Tkinter as tkinter
+    import ttk
+    import tkSimpleDialog as simpledialog
+    import tkFileDialog as filedialog
 import webbrowser
 
 
@@ -95,7 +96,7 @@ class ViewModel(object):
         self.new_node({})
 
     def cmd_rename(self):
-        name = tkSimpleDialog.askstring('Rename', 'Name:')
+        name = simpledialog.askstring('Rename', 'Name:')
         if not name:
             return
         selected = self.selected()
@@ -140,7 +141,7 @@ class ViewModel(object):
         self.new_tree()
 
     def cmd_open(self):
-        file = tkFileDialog.askopenfile(
+        file = filedialog.askopenfile(
             filetypes=self.filetypes,
             title='Open JSON File',
             parent=self.view.root)
@@ -157,7 +158,7 @@ class ViewModel(object):
         self.update_title()
 
     def cmd_save_as(self):
-        filename = tkFileDialog.asksaveasfilename(
+        filename = filedialog.asksaveasfilename(
             filetypes=self.filetypes,
             title='Save JSON As',
             parent=self.view.root)
@@ -292,7 +293,7 @@ class ViewModel(object):
     def new_node(self, value):
         container_id = self.selected()
         if self.item_type[container_id] == dict:
-            key = str(tkSimpleDialog.askstring('Key name', 'Name:'))
+            key = str(simpledialog.askstring('Key name', 'Name:'))
             if not key:
                 return
             for child_id in self.view.treeview.get_children(container_id):
