@@ -11,7 +11,8 @@ try:
     import tkinter.ttk as ttk
     import tkinter.filedialog as filedialog
     import tkinter.simpledialog as simpledialog
-except:
+except ImportError:
+    str = unicode
     import Tkinter as tkinter
     import ttk
     import tkFileDialog as filedialog

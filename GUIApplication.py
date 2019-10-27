@@ -7,7 +7,8 @@ import os
 try:
     import tkinter
     import tkinter.messagebox as messagebox
-except:
+except ImportError:
+    str = unicode
     import Tkinter as tkinter
     import tkMessageBox as messagebox
 import traceback
