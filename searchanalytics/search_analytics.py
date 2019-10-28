@@ -1,4 +1,4 @@
-# /usr/bin/env python3
+#!/usr/bin/env python3
 #
 # Must run with python 3 so unicode string works
 #
