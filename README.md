@@ -2,6 +2,10 @@ Toolchest
 =========
 Useful Tools
 
+jsonEdit
+========
+See https://www.intrepiduniverse.com/projects/jsonEditor.html
+
 # Packaging
 package json edit using:
 ```bash
