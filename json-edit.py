@@ -2,21 +2,21 @@
 #
 # Simple JSON editor that allows strings to be edited with embedded new lines
 from __future__ import generators, unicode_literals, print_function
-import json
-import os
 import sys
-import GUIApplication
-try:
-    import tkinter
-    import tkinter.ttk as ttk
-    import tkinter.simpledialog as simpledialog
-    import tkinter.filedialog as filedialog
-except ImportError:
+if sys.version_info[0] < 3:
     str = unicode
     import Tkinter as tkinter
     import ttk
     import tkSimpleDialog as simpledialog
     import tkFileDialog as filedialog
+else:
+    import tkinter
+    import tkinter.ttk as ttk
+    import tkinter.simpledialog as simpledialog
+    import tkinter.filedialog as filedialog
+import json
+import os
+import GUIApplication
 import webbrowser
 
 

@@ -3,16 +3,16 @@
 # Base class for a GUI Application using Tk
 #
 from __future__ import generators, print_function, unicode_literals
-import os
-try:
-    import tkinter
-    import tkinter.messagebox as messagebox
-except ImportError:
+import sys
+if sys.version_info[0] < 3:
     str = unicode
     import Tkinter as tkinter
     import tkMessageBox as messagebox
+else:
+    import tkinter
+    import tkinter.messagebox as messagebox
+import os
 import traceback
-import sys
 
 oldhook = sys.excepthook
 def exception_handler(exctype, exception, traceback):

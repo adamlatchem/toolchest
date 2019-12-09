@@ -3,20 +3,20 @@
 # Template for MVVM applications.
 #
 from __future__ import generators, unicode_literals
-import json
 import sys
-import GUIApplication
-try:
-    import tkinter
-    import tkinter.ttk as ttk
-    import tkinter.filedialog as filedialog
-    import tkinter.simpledialog as simpledialog
-except ImportError:
+if sys.version_info[0] < 3:
     str = unicode
     import Tkinter as tkinter
     import ttk
     import tkFileDialog as filedialog
     import tkSimpleDialog as simpledialog
+else:
+    import tkinter
+    import tkinter.ttk as ttk
+    import tkinter.filedialog as filedialog
+    import tkinter.simpledialog as simpledialog
+import json
+import GUIApplication
 
 
 class Model(object):
