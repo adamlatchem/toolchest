@@ -32,7 +32,6 @@ import argparse
 import sys
 import time
 import itertools
-import future
 from googleapiclient import sample_tools
 
 
@@ -67,13 +66,13 @@ def debug(aggregate, query_breakdown, query_page_breakdown, page_breakdown, page
 def register_command_line(argument_parser):
     """ Register command line flags """
     argument_parser.add_argument('property_uri', type=str,
-                                 help=('Site or app URI to query data for (including '
-                                       'trailing slash).'))
+                                 help=('Site or app URI to query data for (excluding '
+                                       'trailing slash) e.g. sc-domain:example.com'))
     argument_parser.add_argument('start_date', type=str,
-                                 help=('Start date of the requested date range in '
+                                 help=('ISO Start date of the requested date range in '
                                        'YYYY-MM-DD format.'))
     argument_parser.add_argument('end_date', type=str,
-                                 help=('End date of the requested date range in '
+                                 help=('ISO End date of the requested date range in '
                                        'YYYY-MM-DD format.'))
 
 

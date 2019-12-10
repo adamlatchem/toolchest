@@ -8,7 +8,6 @@
 import argparse
 from datetime import datetime
 import functools
-import future
 from sqlalchemy import create_engine
 from gsc_query_service import CLICKS, CTR, DATE, IMPRESSIONS, KEYS, POSITION
 from gsc_query_service import ROWS, SECONDARY_RESULT
@@ -115,7 +114,7 @@ def main(argument_parser):
 
 
 if __name__ == '__main__':
-    ARGUMENT_PARSER = argparse.ArgumentParser(add_help=False)
+    ARGUMENT_PARSER = argparse.ArgumentParser(add_help=True)
     register_command_line(ARGUMENT_PARSER)
     gsc_query_service.register_command_line(ARGUMENT_PARSER)
 
