@@ -45,6 +45,9 @@ POSITION = 'position'
 ROWS = 'rows'
 SECONDARY_RESULT = 'secondary_result'
 
+# Global client
+client = None
+
 
 def debug(aggregate, query_breakdown, query_page_breakdown, page_breakdown, page_query_breakdown):
     """ Output debug information """
@@ -65,6 +68,8 @@ def debug(aggregate, query_breakdown, query_page_breakdown, page_breakdown, page
 
 def register_command_line(argument_parser):
     """ Register command line flags """
+    global client
+
     argument_parser.add_argument('property_uri', type=str,
                                  help=('Site or app URI to query data for (excluding '
                                        'trailing slash) e.g. sc-domain:example.com'))
@@ -74,6 +79,9 @@ def register_command_line(argument_parser):
     argument_parser.add_argument('end_date', type=str,
                                  help=('ISO End date of the requested date range in '
                                        'YYYY-MM-DD format.'))
+
+    # The client adds -help so annoyingly must be added now even if not used
+    client = GSCQueryService(argument_parser)
 
 
 def anonymous_row(aggregate_keys, row_keys, clicks, impressions, position):
@@ -589,23 +597,23 @@ def get_data(argument_parser, process_result_function):
     argument_parser: provides command line arguments
     process_result_function: receives the query results for further processing
     """
-    source = GSCQueryService(argument_parser)
+    global client
 
     for search_type in ['web', 'image', 'video']:
-        grand_total = source.query_grand_total(search_type)
+        grand_total = client.query_grand_total(search_type)
         if ROWS in grand_total:
-            daily_aggregates = source.query_daily_aggregates(search_type)
+            daily_aggregates = client.query_daily_aggregates(search_type)
             device_country_aggregates = []
             for row in daily_aggregates[ROWS]:
                 date = row[KEYS][0]
                 print('%s : %s' % (search_type, date))
-                device_country_rows = source.query_device_country_aggregates(
+                device_country_rows = client.query_device_country_aggregates(
                     search_type, date)
                 if ROWS in device_country_rows:
                     device_country_aggregates.extend(device_country_rows[ROWS])
-                    breakdown_rows = source.query_breakdown(
+                    breakdown_rows = client.query_breakdown(
                         search_type, date, device_country_rows)
-                    search_appearance_rows = source.query_search_appearance(
+                    search_appearance_rows = client.query_search_appearance(
                         search_type, date)
 
                     process_result_function(

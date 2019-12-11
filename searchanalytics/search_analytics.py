@@ -114,7 +114,7 @@ def main(argument_parser):
 
 
 if __name__ == '__main__':
-    ARGUMENT_PARSER = argparse.ArgumentParser(add_help=True)
+    ARGUMENT_PARSER = argparse.ArgumentParser(add_help=False)
     register_command_line(ARGUMENT_PARSER)
     gsc_query_service.register_command_line(ARGUMENT_PARSER)
 
