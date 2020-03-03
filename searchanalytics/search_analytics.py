@@ -53,6 +53,7 @@ def store_data(connection, search_type, response, title):
     table_name = title.lower().replace(' ', '_')
     table = sql_model.metadata.tables[table_name]
     rows = response[ROWS]
+    keys = {}
 
     for row in rows:
         if table_name == sql_model.t_search_appearance.name:

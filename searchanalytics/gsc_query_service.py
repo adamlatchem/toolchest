@@ -189,26 +189,26 @@ class GSCQueryService:
 
         # Add SECONDARY_RESULT property so page_query_aggregates sum to
         # page_aggregates
-        if ROWS in page_query_aggregates:
-            for row in page_query_aggregates[ROWS]:
-                row[SECONDARY_RESULT] = False
-                keys = row[KEYS]
-                key = (keys[0], keys[1], keys[2], keys[4], keys[3])
-                if key in query_page_secondary_rows:
+        for row in page_query_aggregates.get(ROWS, []):
+            row[SECONDARY_RESULT] = False
+            keys = row[KEYS]
+            key = (keys[0], keys[1], keys[2], keys[4], keys[3])
+            for row2 in query_page_secondary_rows.get(tuple(key[0:4]), []):
+                if key == tuple(row2[KEYS]):
                     row[SECONDARY_RESULT] = True
                     assert_keyed_aggregate('vs. Augmented PageQuery Total ' + search_type,
-                                           page_aggregates,
-                                           page_query_aggregates,
-                                           4,
-                                           True)
+                                          page_aggregates,
+                                          page_query_aggregates,
+                                          4,
+                                          True)
 
         # Add SECONDARY_RESULT property so query_page_aggregates sum to
         # query_aggregates
-        if ROWS in query_page_aggregates:
-            for row in query_page_aggregates[ROWS]:
-                row[SECONDARY_RESULT] = False
-                key = tuple(row[KEYS])
-                if key in query_page_secondary_rows:
+        for row in query_page_aggregates.get(ROWS, []):
+            row[SECONDARY_RESULT] = False
+            key = tuple(row[KEYS])
+            for row2 in query_page_secondary_rows.get(tuple(row[KEYS][0:4]), []):
+                if key == tuple(row2[KEYS]):
                     row[SECONDARY_RESULT] = True
 
         # Add omitted (anonymised) rows so page_query_aggregates sum to
@@ -299,57 +299,63 @@ class GSCQueryService:
 
         # Add SECONDARY_RESULT property to page_aggregates to check
         # all secondary_impressions are accounted for
-        if ROWS in page_aggregates:
-            for row in page_aggregates[ROWS]:
-                row[SECONDARY_RESULT] = False
-                key = tuple(row[KEYS])
-                second_rows = []
-                for key_value in query_page_secondary_rows.items():
-                    key2, row2 = key_value
-                    key_tuple = (key2[0], key2[1], key2[2], key2[4])
+        for row in page_aggregates.get(ROWS, []):
+            row[SECONDARY_RESULT] = False
+            key = tuple(row[KEYS])
+            page_query_breakdown = [r for r in page_query_aggregates.get(ROWS, [])
+                                    if r[KEYS][0:3] == row[KEYS][0:3]]
+            second_rows = []
+            for key_value in query_page_secondary_rows.items():
+                key2, rows = key_value
+                for r in rows:
+                    k = r[KEYS]
+                    key_tuple = (k[0], k[1], k[2], k[4])
                     if key == key_tuple:
-                        second_rows.append(row2)
-                if second_rows:
-                    second_sum = sum([r[IMPRESSIONS] for r in second_rows])
-                    if row[IMPRESSIONS] == second_sum:
-                        row[SECONDARY_RESULT] = True
+                        second_rows.append(r)
+            if second_rows:
+                second_sum = sum([r[IMPRESSIONS] for r in second_rows])
+                if row[IMPRESSIONS] == second_sum:
+                    row[SECONDARY_RESULT] = True
+                else:
+                    if row[IMPRESSIONS] < second_sum:
+                        debug(
+                            row, None, second_rows, None, None)
+                        raise Exception(
+                            'Secondary impressions not included in aggregate total')
                     else:
-                        if row[IMPRESSIONS] < second_sum:
+                        omitted_query_clicks = row[CLICKS] - \
+                            sum([r[CLICKS] for r in second_rows])
+                        omitted_query_impressions = row[IMPRESSIONS] - sum(
+                            [r[IMPRESSIONS] for r in second_rows])
+                        row_pos_imp = sum([row[POSITION] * row[IMPRESSIONS]
+                                           for row in second_rows])
+                        implied_position = (
+                            row[POSITION] * row[IMPRESSIONS] - row_pos_imp) \
+                            / omitted_query_impressions
+                        keyword = '*OMITTED*'
+                        for breakdown in page_query_breakdown:
+                            if breakdown[KEYS][0] == row[KEYS][0] and \
+                                    breakdown[KEYS][1] == row[KEYS][1] and \
+                                    breakdown[KEYS][2] == row[KEYS][2] and \
+                                    breakdown[KEYS][3] == row[KEYS][3] and \
+                                    breakdown[POSITION] == implied_position and \
+                                    breakdown[IMPRESSIONS] == omitted_query_impressions and \
+                                    breakdown[CLICKS] == omitted_query_clicks:
+                                keyword = breakdown[KEYS][4]
+                                break
+
+                        if keyword == '*OMITTED*':
                             debug(
-                                row, None, query_page_secondary_rows.items(), None, None)
-                            raise Exception(
-                                'Impression mismatch during secondary processing')
-                        else:
-                            omitted_query_clicks = row[CLICKS] - \
-                                sum([r[CLICKS] for r in second_rows])
-                            omitted_query_impressions = row[IMPRESSIONS] - sum(
-                                [r[IMPRESSIONS] for r in second_rows])
-                            row_pos_imp = sum([row[POSITION] * row[IMPRESSIONS]
-                                               for row in second_rows])
-                            implied_position = (
-                                row[POSITION] * row[IMPRESSIONS] - row_pos_imp) \
-                                / omitted_query_impressions
-                            keyword = '*OMITTED*'
-                            for breakdown in page_query_breakdown:
-                                if breakdown[KEYS][0] == row[KEYS][0] and \
-                                        breakdown[KEYS][1] == row[KEYS][1] and \
-                                        breakdown[KEYS][2] == row[KEYS][2] and \
-                                        breakdown[KEYS][3] == row[KEYS][3] and \
-                                        breakdown[POSITION] == implied_position and \
-                                        breakdown[IMPRESSIONS] == omitted_query_impressions and \
-                                        breakdown[CLICKS] == omitted_query_clicks:
-                                    keyword = breakdown[KEYS][4]
-                                    break
-                            if keyword == '*OMITTED*':
-                                raise Exception('Unable to infer keyword')
-                            new_row = anonymous_row(row[KEYS][:3],
-                                                    (keyword,
-                                                     row[KEYS][3]),
-                                                    omitted_query_clicks,
-                                                    omitted_query_impressions,
-                                                    implied_position)
-                            query_page_secondary_rows[tuple(
-                                new_row[KEYS])] = new_row
+                                row, None, page_query_breakdown + second_rows, None, None)
+                            raise Exception('Unable to infer keyword')
+                        new_row = anonymous_row(row[KEYS][:3],
+                                                (keyword,
+                                                 row[KEYS][3]),
+                                                omitted_query_clicks,
+                                                omitted_query_impressions,
+                                                implied_position)
+                        query_page_secondary_rows[tuple(
+                            new_row[KEYS])] = [new_row]
 
         assert_keyed_aggregate('vs. Augmented QueryPage Total ' + search_type,
                                query_aggregates,
@@ -403,43 +409,50 @@ class GSCQueryService:
         return response
 
 
-def infer_secondary_rows(property_aggregates, breakdown_rows, key_length):
+def infer_secondary_rows(aggregates, breakdown_rows, key_length):
     """ When aggregated by property results that appear more than once on a
     SERP are given a single aggregate impression but the breakdown contains
     all. This function identifies the secondary rows."""
-    if ROWS in property_aggregates and ROWS in breakdown_rows:
+    if ROWS in aggregates and ROWS in breakdown_rows:
         secondary_rows = []
-        for aggregate in property_aggregates[ROWS]:
-            aggregate_keys = aggregate[KEYS]
+        for aggregate in aggregates[ROWS]:
+            aggregate_key = aggregate[KEYS][0:key_length]
             breakdown = []
             for breakdown_row in breakdown_rows[ROWS]:
                 keys = breakdown_row[KEYS]
-                if keys[0:key_length] == aggregate_keys[0:key_length]:
+                if keys[0:key_length] == aggregate_key:
                     breakdown.append(breakdown_row)
             if len(breakdown) > 1:
                 new_prim, new_sec = partition_rows(aggregate, breakdown)
                 assert_aggregate('Secondary Inference',
                                  aggregate, new_prim)
                 secondary_rows.extend(new_sec)
-        return {key: row for key, row in
-                zip([tuple(r[KEYS]) for r in secondary_rows], secondary_rows)}
-    elif ROWS not in property_aggregates and ROWS not in breakdown_rows:
+            else:
+                assert_aggregate('Secondary Inference check',
+                                 aggregate, breakdown)
+        result = {}
+        for row in secondary_rows:
+            key = tuple(row[KEYS][0:key_length])
+            result.setdefault(key, []).append(row)
+        return result
+
+    elif ROWS not in aggregates and ROWS not in breakdown_rows:
         pass
-    elif ROWS not in property_aggregates:
-        raise Exception('Missing property_aggregates')
+    elif ROWS not in aggregates:
+        raise Exception('Missing aggregates')
     else:
-        raise Exception('Missing property breakdown_rows')
+        raise Exception('Missing breakdown_rows')
 
 
 def partition_rows(aggregate, details_list):
     """ Partition details_list into (primary, secondary) rows that would
-    produce the aggregate. """
+    explain the aggregate. """
     for primary_length in range(1, len(details_list)):
         for candidate in itertools.combinations(details_list, primary_length):
             if check_aggregate(aggregate, candidate):
                 secondaries = [x for x in details_list if x not in candidate]
                 return (candidate, secondaries)
-    raise Exception('Unable to partition rows')
+    raise Exception('Unable to partition rows: ' + str(aggregate) + ' :: ' + str(details_list))
 
 
 def assert_keyed_aggregate(title, keyed_aggregates, breakdown_rows, key_length, include_secondary):
