@@ -41,6 +41,7 @@ CTR = 'ctr'
 DATE = 'date'
 IMPRESSIONS = 'impressions'
 KEYS = 'keys'
+OMITTED = '*OMITTED*'
 POSITION = 'position'
 ROWS = 'rows'
 SECONDARY_RESULT = 'secondary_result'
@@ -269,7 +270,7 @@ class GSCQueryService:
                         aggregate[POSITION] * aggregate[IMPRESSIONS] - row_pos_imp) \
                         / omitted_query_impressions
                     new_row = anonymous_row(aggregate_keys,
-                                            ('*OMITTED*', '*OMITTED*'),
+                                            (OMITTED, OMITTED),
                                             omitted_query_clicks,
                                             omitted_query_impressions,
                                             implied_position)
@@ -332,22 +333,45 @@ class GSCQueryService:
                         implied_position = (
                             row[POSITION] * row[IMPRESSIONS] - row_pos_imp) \
                             / omitted_query_impressions
-                        keyword = '*OMITTED*'
+                        keyword = None
+                        partial_rows = []
+                        omitted_rows = []
                         for breakdown in page_query_breakdown:
-                            if breakdown[KEYS][0] == row[KEYS][0] and \
-                                    breakdown[KEYS][1] == row[KEYS][1] and \
-                                    breakdown[KEYS][2] == row[KEYS][2] and \
-                                    breakdown[KEYS][3] == row[KEYS][3] and \
-                                    breakdown[POSITION] == implied_position and \
-                                    breakdown[IMPRESSIONS] == omitted_query_impressions and \
-                                    breakdown[CLICKS] == omitted_query_clicks:
+                            key_match = breakdown[KEYS][0] == row[KEYS][0] and \
+                                breakdown[KEYS][1] == row[KEYS][1] and \
+                                breakdown[KEYS][2] == row[KEYS][2]
+                            data_match = breakdown[POSITION] == implied_position and \
+                                breakdown[IMPRESSIONS] == omitted_query_impressions and \
+                                breakdown[CLICKS] == omitted_query_clicks
+
+                            if key_match and breakdown[KEYS][3] == OMITTED:
+                                omitted_rows.append(breakdown)
+
+                            if key_match and breakdown[KEYS][3] == row[KEYS][3] and data_match:
                                 keyword = breakdown[KEYS][4]
                                 break
+                            elif key_match and breakdown[KEYS][3] == row[KEYS][3]:
+                                partial_rows.append(breakdown)
 
-                        if keyword == '*OMITTED*':
+                        if not keyword:
+                            # It is explained by all keywords
+                            partial_rows_clicks = sum([r[CLICKS] for r in partial_rows])
+                            partial_rows_impressions = sum([r[IMPRESSIONS] for r in partial_rows])
+                            partial_rows_pos = sum([row[POSITION] * row[IMPRESSIONS] for row in partial_rows]) / partial_rows_impressions
+                            if row[POSITION] == partial_rows_pos and row[IMPRESSIONS] == partial_rows_impressions and row[CLICKS] == partial_rows_clicks:
+                                continue
+
                             debug(
-                                row, None, page_query_breakdown + second_rows, None, None)
-                            raise Exception('Unable to infer keyword')
+                                row, None, partial_rows + omitted_rows, None, None)
+                            reason = ""
+                            if row[POSITION] != implied_position:
+                                reason = reason + f'postion: {row[POSITION]} != {implied_position} '
+                            if row[IMPRESSIONS] != omitted_query_impressions:
+                                reason = reason + f'impressions: {row[IMPRESSIONS]} != {omitted_query_impressions} '
+                            if row[CLICKS] != omitted_query_clicks:
+                                reason = reason + f'clicks: {row[CLICKS]} != {omitted_query_clicks} '
+                            raise Exception(f'Unable to infer keyword {reason}')
+
                         new_row = anonymous_row(row[KEYS][:3],
                                                 (keyword,
                                                  row[KEYS][3]),
@@ -399,6 +423,10 @@ class GSCQueryService:
         if 'rowLimit' in request:
             raise Exception('rowLimit is managed by execute_request')
         request['rowLimit'] = 25000
+
+        # Crude API call throttle
+        # Do not exceed 1200QPM : https://developers.google.com/webmaster-tools/search-console-api-original/v3/limits
+        time.sleep(60.0 / 1200.0)
         response = self.service.searchanalytics().query(
             siteUrl=property_uri, body=request).execute()
         if ROWS in response:
@@ -635,9 +663,6 @@ def get_data(argument_parser, process_result_function):
                         search_type, breakdown_rows, 'Breakdown')
                     process_result_function(search_type, search_appearance_rows,
                                             'Search Appearance')
-
-                # Crude API call throttle
-                time.sleep(1.1)
 
             assert_aggregate('Grand Total vs. Device and Country Aggregate ' + search_type,
                              grand_total[ROWS][0], device_country_aggregates)
