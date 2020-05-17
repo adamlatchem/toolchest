@@ -46,7 +46,7 @@ class Model(object):
         if filename is None:
             filename = self.filename
         with open(filename, 'w') as file:
-            json.dump(self.object, file, sort_keys=True, indent=4,
+            json.dump(self.object, file, sort_keys=True, indent=2,
             separators=(',', ': '))
         self.filename = filename
 
@@ -76,6 +76,8 @@ class ViewModel(object):
         self.bind_menu(cm, 'Add number', command=self.cmd_add_number)
         self.bind_menu(cm, 'Add null', command=self.cmd_add_null)
         self.bind_menu(cm, 'Delete', command=self.cmd_delete)
+        self.bind_menu(cm, 'Unfold subtree', command=self.cmd_unfold_subtree)
+        self.bind_menu(cm, 'Fold subtree', command=self.cmd_fold_subtree)
         self.view.treeview.bind('<<TreeviewSelect>>', self.on_treeview_select)
         self.view.treeview.bind('<Button-2>', self.on_show_menu)
         self.view.treeview.bind('<Button-3>', self.on_show_menu)
@@ -135,6 +137,19 @@ class ViewModel(object):
         del self.item_type[selected]
         self.view.treeview.delete(selected)
         self.view.cmd_dirty()
+
+    def _unfold_subtree(self,item,unfold=True):
+        self.view.treeview.item(item,open=unfold)
+        for child in self.view.treeview.get_children(item):
+          self._unfold_subtree(child,unfold)
+
+    def cmd_unfold_subtree(self):
+        selected = self.selected()
+        self._unfold_subtree(selected)
+
+    def cmd_fold_subtree(self):
+        selected = self.selected()
+        self._unfold_subtree(selected,False)
 
     def cmd_new(self):
         self.model = Model()
@@ -336,14 +351,14 @@ class ViewModel(object):
     def menu_for_item(self, item_id):
         type = self.item_type[item_id]
         context_matrix = {
-            'root'  : [0,0,0,0,0,0,0,0,0,2,0],
-            dict    : [1,4,1,3,3,1,1,1,1,2,1],
-            list    : [1,4,1,3,3,1,1,1,1,2,1],
-            str     : [0,4,0,3,3,0,0,0,0,2,1],
-            int     : [0,4,0,3,3,0,0,0,0,2,1],
-            float   : [0,4,0,3,3,0,0,0,0,2,1],
-            bool    : [0,4,0,3,3,0,0,0,0,2,1],
-            'null'  : [0,4,0,3,3,0,0,0,0,2,1],
+            'root'  : [0,0,0,0,0,0,0,0,0,2,0,2,5,6],
+            dict    : [1,4,1,3,3,1,1,1,1,2,1,2,5,6],
+            list    : [1,4,1,3,3,1,1,1,1,2,1,2,5,6],
+            str     : [0,4,0,3,3,0,0,0,0,2,1,2,0,6],
+            int     : [0,4,0,3,3,0,0,0,0,2,1,2,0,0],
+            float   : [0,4,0,3,3,0,0,0,0,2,1,2,0,0],
+            bool    : [0,4,0,3,3,0,0,0,0,2,1,2,0,0],
+            'null'  : [0,4,0,3,3,0,0,0,0,2,1,2,0,0],
         }
         menu = self.view.context_menu
         for i in range(len(context_matrix[type])):
@@ -361,6 +376,16 @@ class ViewModel(object):
                     menu.entryconfigure(i, state=tkinter.DISABLED) 
             elif state == 4:
                 if parent_type == dict:
+                    menu.entryconfigure(i, state=tkinter.NORMAL)
+                else:
+                    menu.entryconfigure(i, state=tkinter.DISABLED) 
+            elif state == 5:
+                if len(self.view.treeview.get_children(item_id)) > 0 and self.view.treeview.item(item_id,'open') == False:
+                    menu.entryconfigure(i, state=tkinter.NORMAL)
+                else:
+                    menu.entryconfigure(i, state=tkinter.DISABLED) 
+            elif state == 6:
+                if len(self.view.treeview.get_children(item_id)) > 0 and self.view.treeview.item(item_id,'open'):
                     menu.entryconfigure(i, state=tkinter.NORMAL)
                 else:
                     menu.entryconfigure(i, state=tkinter.DISABLED) 
@@ -423,6 +448,9 @@ class JSONEdit(GUIApplication.GUIApplication):
         menu.add_command(label='Add null')
         menu.add_separator()
         menu.add_command(label='Delete')
+        menu.add_separator()
+        menu.add_command(label='Unfold subtree')
+        menu.add_command(label='Fold subtree')
 
         self.context_menu = menu
 
