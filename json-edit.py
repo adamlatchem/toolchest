@@ -31,9 +31,9 @@ class Model(object):
         self.filename = "new.json"
         self.object = {}
 
-    def load(self, sourcefile):
+    def load(self, sourcefile, encoding='utf-8'):
         if type(sourcefile) == str:
-            sourcefile = open(sourcefile, 'r')
+            sourcefile = open(sourcefile, 'r', encoding=encoding)
         self.filename = sourcefile.name
         json_text = sourcefile.read()
         sourcefile.close()
@@ -42,10 +42,10 @@ class Model(object):
     def loads(self, json_text):
         self.object = json.loads(json_text)
 
-    def save(self, filename=None):
+    def save(self, filename=None, encoding='utf-8'):
         if filename is None:
             filename = self.filename
-        with open(filename, 'w') as file:
+        with open(filename, 'w', encoding=encoding) as file:
             json.dump(self.object, file, sort_keys=True, indent=4,
             separators=(',', ': '))
         self.filename = filename
@@ -73,7 +73,8 @@ class ViewModel(object):
         self.bind_menu(cm, 'Move down', command=self.cmd_move_down)
         self.bind_menu(cm, 'Add string', command=self.cmd_add_string)
         self.bind_menu(cm, 'Add boolean', command=self.cmd_add_boolean)
-        self.bind_menu(cm, 'Add number', command=self.cmd_add_number)
+        self.bind_menu(cm, 'Add number (float)', command=self.cmd_add_float)
+        self.bind_menu(cm, 'Add number (integer)', command=self.cmd_add_int)
         self.bind_menu(cm, 'Add null', command=self.cmd_add_null)
         self.bind_menu(cm, 'Delete', command=self.cmd_delete)
         self.view.treeview.bind('<<TreeviewSelect>>', self.on_treeview_select)
@@ -121,8 +122,11 @@ class ViewModel(object):
     def cmd_add_boolean(self):
         self.new_node(True)
 
-    def cmd_add_number(self):
+    def cmd_add_float(self):
         self.new_node(0.0)
+        
+    def cmd_add_int(self):
+        self.new_node(0)
 
     def cmd_add_null(self):
         self.new_node(None)
@@ -336,14 +340,14 @@ class ViewModel(object):
     def menu_for_item(self, item_id):
         type = self.item_type[item_id]
         context_matrix = {
-            'root'  : [0,0,0,0,0,0,0,0,0,2,0],
-            dict    : [1,4,1,3,3,1,1,1,1,2,1],
-            list    : [1,4,1,3,3,1,1,1,1,2,1],
-            str     : [0,4,0,3,3,0,0,0,0,2,1],
-            int     : [0,4,0,3,3,0,0,0,0,2,1],
-            float   : [0,4,0,3,3,0,0,0,0,2,1],
-            bool    : [0,4,0,3,3,0,0,0,0,2,1],
-            'null'  : [0,4,0,3,3,0,0,0,0,2,1],
+            'root'  : [0,0,0,0,0,0,0,0,0,0,2,0],
+            dict    : [1,4,1,3,3,1,1,1,1,1,2,1],
+            list    : [1,4,1,3,3,1,1,1,1,1,2,1],
+            str     : [0,4,0,3,3,0,0,0,0,0,2,1],
+            int     : [0,4,0,3,3,0,0,0,0,0,2,1],
+            float   : [0,4,0,3,3,0,0,0,0,0,2,1],
+            bool    : [0,4,0,3,3,0,0,0,0,0,2,1],
+            'null'  : [0,4,0,3,3,0,0,0,0,0,2,1],
         }
         menu = self.view.context_menu
         for i in range(len(context_matrix[type])):
@@ -419,7 +423,8 @@ class JSONEdit(GUIApplication.GUIApplication):
         menu.add_command(label='Move down')
         menu.add_command(label='Add string')
         menu.add_command(label='Add boolean')
-        menu.add_command(label='Add number')
+        menu.add_command(label='Add number (float)')
+        menu.add_command(label='Add number (integer)')
         menu.add_command(label='Add null')
         menu.add_separator()
         menu.add_command(label='Delete')
