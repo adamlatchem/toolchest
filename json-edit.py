@@ -226,13 +226,13 @@ class ViewModel(object):
         key_item = self.view.treeview.item(key_id)
         key_text = key_item['text']
         if isinstance(obj, dict):
-            self.view.treeview.item(key_id, text=augment(key_text, '{ ... }'), values=(key_text, dict))
+            self.view.treeview.item(key_id, text=augment(key_text, '{'+'{}'.format(len(obj))+'}'), values=(key_text, dict))
             self.item_type[key_id] = dict
             for key in sorted(obj):
                 inner_key_id = self.view.treeview.insert(key_id, 'end', text=key)
                 self.object_to_tree(obj[key], key_item, inner_key_id)
         elif isinstance(obj, list):
-            self.view.treeview.item(key_id, text=augment(key_text, '[ ,,, ]'), values=(key_text, list))
+            self.view.treeview.item(key_id, text=augment(key_text, '[ {} ]'.format(len(obj))), values=(key_text, list))
             self.item_type[key_id] = list
             for item in obj:
                 inner_key_id = self.view.treeview.insert(key_id, 'end', text='')
