@@ -24,7 +24,7 @@ def augment(text, augmentation):
     if len(text):
         return text + ' : ' + augmentation
     return augmentation
-    
+
 
 class Model(object):
     def __init__(self):
@@ -46,7 +46,7 @@ class Model(object):
         if filename is None:
             filename = self.filename
         with open(filename, 'w') as file:
-            json.dump(self.object, file, sort_keys=True, indent=2,
+            json.dump(self.object, file, sort_keys=True, indent=4,
             separators=(',', ': '))
         self.filename = filename
 
@@ -141,7 +141,7 @@ class ViewModel(object):
     def _unfold_subtree(self,item,unfold=True):
         self.view.treeview.item(item,open=unfold)
         for child in self.view.treeview.get_children(item):
-          self._unfold_subtree(child,unfold)
+            self._unfold_subtree(child,unfold)
 
     def cmd_unfold_subtree(self):
         selected = self.selected()
