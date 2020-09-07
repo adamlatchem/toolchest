@@ -475,7 +475,7 @@ def infer_secondary_rows(aggregates, breakdown_rows, key_length):
 def partition_rows(aggregate, details_list):
     """ Partition details_list into (primary, secondary) rows that would
     explain the aggregate. """
-    for primary_length in range(1, len(details_list)):
+    for primary_length in range(1, len(details_list) + 1):
         for candidate in itertools.combinations(details_list, primary_length):
             if check_aggregate(aggregate, candidate):
                 secondaries = [x for x in details_list if x not in candidate]
