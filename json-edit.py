@@ -95,6 +95,16 @@ class ViewModel(object):
         else:
             self.cmd_new()
 
+        self.transform = {
+            '\b': "\\b",
+            '\f': "\\f",
+            '\n': "\\n",
+            '\r': "\\r",
+            '\t': "\\t",
+            '\\': "\\\\",
+            '"':  "\\\""
+        }
+
     def cmd_add_object(self):
         self.new_node({})
 
@@ -292,11 +302,15 @@ class ViewModel(object):
         elif type == 'null':
             return 'null'
         else:
-            string = str(tree.item(node_id)['values'][1])
-            string = string.replace('\\', '\\\\')
-            string = string.replace('"', '\\"')
-            string = string.replace('\n', '\\n')
-            string = string.replace('\t', '\\t')
+            string = str()
+            for c in str(tree.item(node_id)['values'][1]):
+                transformed = self.transform.get(c)
+                if transformed:
+                    string += transformed
+                elif ord(c) < 32:
+                    pass
+                else:
+                    string += c
             return '"' + string + '"'
 
     def new_tree(self):
