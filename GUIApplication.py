@@ -12,6 +12,7 @@ else:
     import tkinter
     import tkinter.messagebox as messagebox
 import os
+import platform
 import traceback
 
 oldhook = sys.excepthook
@@ -177,4 +178,10 @@ def main(application_class):
             pass
 
     app = application_class(root)
+
+    if platform.system() == 'Darwin':
+        # Focus window on Mac OS
+        os.system(
+            '''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
+
     tkinter.mainloop()
