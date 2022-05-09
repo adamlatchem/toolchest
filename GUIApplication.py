@@ -15,18 +15,24 @@ import os
 import traceback
 
 oldhook = sys.excepthook
+
+
 def exception_handler(exctype, exception, traceback):
     global oldhook
     print(traceback)
     messagebox.showerror(title='Error', message=str(exception))
     if oldhook:
         oldhook(exctype, exception, traceback)
+
+
 sys.excepthook = exception_handler
+
 
 def configure_if(widget, option, value):
     config = widget.config()
     if option in config:
         widget[option] = value
+
 
 class GUIApplication(object):
     def __init__(self, root, title):
@@ -68,7 +74,7 @@ class GUIApplication(object):
 
     def create_scrolled(self, parent, cls, vertical, horizontal):
         outer = tkinter.Frame(parent)
-        outer.configure(background = parent['background'])
+        outer.configure(background=parent['background'])
         outer.columnconfigure(0, weight=1)
         outer.rowconfigure(0, weight=1)
 
@@ -83,15 +89,15 @@ class GUIApplication(object):
         if cls == tkinter.Text:
             inner.configure(wrap=tkinter.NONE)
         if vertical:
-            inner.config(yscrollcommand = vsb.set)
+            inner.config(yscrollcommand=vsb.set)
         if horizontal:
-            inner.config(xscrollcommand = hsb.set)
+            inner.config(xscrollcommand=hsb.set)
         inner.grid(column=0, row=0, sticky=tkinter.NSEW)
 
         if vertical:
-            vsb.config(command = inner.yview)
+            vsb.config(command=inner.yview)
         if horizontal:
-            hsb.config(command = inner.xview)
+            hsb.config(command=inner.xview)
         return inner, outer
 
     def labelled_entry(self, text, value, column, row):
@@ -152,6 +158,7 @@ class GUIApplication(object):
             self._is_dirty = False
             self.title(self._title)
 
+
 def main(application_class):
     """ Call to start an application of type application_class """
     root = tkinter.Tk()
@@ -160,7 +167,7 @@ def main(application_class):
         bundle_dir = sys._MEIPASS
     else:
         bundle_dir = os.path.dirname(os.path.abspath(__file__))
-    file, ext  = os.path.splitext(sys.argv[0])
+    file, ext = os.path.splitext(sys.argv[0])
     file = os.path.basename(file)
     icon_file = os.path.join(bundle_dir, file + '.ico')
     if os.path.isfile(icon_file):
@@ -171,4 +178,3 @@ def main(application_class):
 
     app = application_class(root)
     tkinter.mainloop()
-

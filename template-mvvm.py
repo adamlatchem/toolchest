@@ -43,7 +43,7 @@ class Model(object):
 class ViewModel(object):
     def __init__(self, view):
         self.filetypes = (('JSON files', '*.json'),
-                           ('All files', '*.*'))
+                          ('All files', '*.*'))
         self.item = None
         self.view = view
 
@@ -154,7 +154,7 @@ class ViewModel(object):
     def object_to_tree(self, obj, parent_node=''):
         if parent_node == '':
             self.view.treeview.delete(*self.view.treeview.get_children())
-            self.item_type = {'':'root'}
+            self.item_type = {'': 'root'}
 
         if isinstance(obj, dict):
             node = self.view.treeview.insert(
@@ -254,9 +254,9 @@ class ViewModel(object):
     def menu_for_item(self, item):
         type = self.item_type[item]
         context_matrix = {
-            'root'  : [0,0,2,0,0],
-            dict    : [1,0,2,0,0],
-            'key'   : [0,1,2,1,1],
+            'root': [0, 0, 2, 0, 0],
+            dict: [1, 0, 2, 0, 0],
+            'key': [0, 1, 2, 1, 1],
         }
         menu = self.view.context_menu
         for i in range(5):
@@ -266,12 +266,12 @@ class ViewModel(object):
             elif state == 1:
                 menu.entryconfigure(i, state=tkinter.NORMAL)
             elif state == 3:
-                parent = self.view.treeview.parent(item) 
+                parent = self.view.treeview.parent(item)
                 parent_type = self.item_type[parent]
                 if parent_type == list:
                     menu.entryconfigure(i, state=tkinter.NORMAL)
                 else:
-                    menu.entryconfigure(i, state=tkinter.DISABLED) 
+                    menu.entryconfigure(i, state=tkinter.DISABLED)
 
     def move_selected(self, offset):
         selected = self.selected()

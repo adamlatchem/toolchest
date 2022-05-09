@@ -9,6 +9,7 @@ import tkinter
 import tkinter.messagebox
 import GUIApplication
 
+
 class RedisConnect(GUIApplication.GUIApplication):
     def __init__(self, root):
         super(RedisConnect, self).__init__(root, 'REDIS Connection')
@@ -23,12 +24,13 @@ class RedisConnect(GUIApplication.GUIApplication):
         self.connect_button = tkinter.Button(self.root, width=32)
         self.connect_button.config(
             text='Connect', command=self.cmd_connect)
-        self.connect_button.grid(column=0, row=0, columnspan=2, sticky=tkinter.NSEW)
+        self.connect_button.grid(
+            column=0, row=0, columnspan=2, sticky=tkinter.NSEW)
         self.host_label, self.host_entry = self.labelled_entry(
             'Host:', 'localhost', 0, 1
         )
         self.port_label, self.port_entry = self.labelled_entry(
-             'Port:', '6379', 0, 2
+            'Port:', '6379', 0, 2
         )
         self.password_label, self.password_entry = self.labelled_entry(
             'Password:', None, 0, 3
@@ -54,7 +56,7 @@ class RedisConnect(GUIApplication.GUIApplication):
             if self.database_list:
                 self.database_list.destroy()
             self.database_list = tkinter.OptionMenu(self.root,
-                                               self.database, *databases)
+                                                    self.database, *databases)
             self.database_list.grid(column=1, row=4, sticky=tkinter.NSEW)
             self.database_label.grid()
             self.connect_button.config(text='Disconnect',
@@ -90,10 +92,10 @@ class RedisConnect(GUIApplication.GUIApplication):
         host = self.host_entry.get()
         port = int(self.port_entry.get())
         self.r = redis.StrictRedis(
-            host = host, 
-            port = port, 
-            db = db, 
-            password = self.password_entry.get())
+            host=host,
+            port=port,
+            db=db,
+            password=self.password_entry.get())
         self.r.client_setname('REDISExplorer')
         top_level = tkinter.Toplevel()
         self.explorer = RedisExplorer(
@@ -130,10 +132,11 @@ class RedisExplorer(GUIApplication.GUIApplication):
         self.object_set.grid(column=3, row=0, sticky=tkinter.E)
 
         self.key_label = tkinter.Label(self.object_frame, text='Key:',
-            foreground='blue', height=2, anchor=tkinter.S)
+                                       foreground='blue', height=2, anchor=tkinter.S)
         self.key_label.grid(column=0, row=1, sticky=tkinter.S + tkinter.W)
         self.key_entry = tkinter.Entry(self.object_frame)
-        self.key_entry.grid(column=1, row=1, columnspan=4, sticky=tkinter.S + tkinter.EW)
+        self.key_entry.grid(column=1, row=1, columnspan=4,
+                            sticky=tkinter.S + tkinter.EW)
         self.key_entry.config(state=tkinter.DISABLED)
         self.key_entry.bind("<Return>", self.cmd_set_as_phase_2)
         self.key_entry.bind("<FocusOut>", self.cmd_set_as_finally)
@@ -157,10 +160,10 @@ class RedisExplorer(GUIApplication.GUIApplication):
         if index == -1:
             return
         key = w.get(index)
-        self.key_entry.config(state = tkinter.NORMAL)
+        self.key_entry.config(state=tkinter.NORMAL)
         self.key_entry.delete(0, tkinter.END)
         self.key_entry.insert(0, key)
-        self.key_entry.config(state = tkinter.DISABLED)
+        self.key_entry.config(state=tkinter.DISABLED)
         value = self.r.get(key)
         self.object_view.delete(1.0, tkinter.END)
         self.object_view.insert(1.0, value)
@@ -174,11 +177,11 @@ class RedisExplorer(GUIApplication.GUIApplication):
     def cmd_set_as(self, focusOutEvent=None):
         key = self.key_entry.get()
         self.old_key = key
-        self.object_delete.config(state = tkinter.DISABLED)
-        self.object_set.config(state = tkinter.DISABLED)
-        self.key_entry.config(state = tkinter.NORMAL)
-        self.object_set_as.config(text = 'YES, set as')
-        self.object_set_as.config(command = self.cmd_set_as_phase_2)
+        self.object_delete.config(state=tkinter.DISABLED)
+        self.object_set.config(state=tkinter.DISABLED)
+        self.key_entry.config(state=tkinter.NORMAL)
+        self.object_set_as.config(text='YES, set as')
+        self.object_set_as.config(command=self.cmd_set_as_phase_2)
         self.key_entry.focus_set()
 
     def cmd_set_as_phase_2(self):
@@ -193,21 +196,21 @@ class RedisExplorer(GUIApplication.GUIApplication):
     def cmd_set_as_finally(self, focusOutEvent=None):
         self.key_entry.delete(0, tkinter.END)
         self.key_entry.insert(0, self.old_key)
-        self.key_entry.config(state = tkinter.DISABLED)
-        self.object_delete.config(state = tkinter.NORMAL)
-        self.object_set.config(state = tkinter.NORMAL)
-        self.object_set_as.config(text = 'Set As ...')
-        self.object_set_as.config(command = self.cmd_set_as)
+        self.key_entry.config(state=tkinter.DISABLED)
+        self.object_delete.config(state=tkinter.NORMAL)
+        self.object_set.config(state=tkinter.NORMAL)
+        self.object_set_as.config(text='Set As ...')
+        self.object_set_as.config(command=self.cmd_set_as)
         self.key_list.focus_set()
 
     def cmd_delete(self):
         self.old_key = self.key_entry.get()
         if len(self.old_key) == 0:
             return
-        self.object_set_as.config(state = tkinter.DISABLED)
-        self.object_set.config(state = tkinter.DISABLED)
-        self.object_delete.config(text = 'YES, delete')
-        self.object_delete.config(command = self.cmd_delete_phase_2)
+        self.object_set_as.config(state=tkinter.DISABLED)
+        self.object_set.config(state=tkinter.DISABLED)
+        self.object_delete.config(text='YES, delete')
+        self.object_delete.config(command=self.cmd_delete_phase_2)
         self.object_delete.focus_set()
         self.object_delete.bind("<FocusOut>", self.cmd_delete_finally)
 
@@ -219,16 +222,16 @@ class RedisExplorer(GUIApplication.GUIApplication):
         self.cmd_delete_finally()
 
     def cmd_delete_finally(self, focusOutEvent=None):
-        self.object_set_as.config(state = tkinter.NORMAL)
-        self.object_set.config(state = tkinter.NORMAL)
-        self.object_delete.config(text = 'Delete')
-        self.object_delete.config(command = self.cmd_delete)
+        self.object_set_as.config(state=tkinter.NORMAL)
+        self.object_set.config(state=tkinter.NORMAL)
+        self.object_delete.config(text='Delete')
+        self.object_delete.config(command=self.cmd_delete)
         self.object_delete.unbind("<FocusOut>")
 
     def clear_select_key(self):
-        self.key_entry.config(state = tkinter.NORMAL)
+        self.key_entry.config(state=tkinter.NORMAL)
         self.key_entry.delete(0, tkinter.END)
-        self.key_entry.config(state = tkinter.DISABLED)
+        self.key_entry.config(state=tkinter.DISABLED)
         self.object_view.delete(1.0, tkinter.END)
 
     def key_index(self):
@@ -236,7 +239,7 @@ class RedisExplorer(GUIApplication.GUIApplication):
         if len(selection) == 0:
             return -1
         index = int(selection[0])
-        return index        
+        return index
 
 
 if __name__ == '__main__':

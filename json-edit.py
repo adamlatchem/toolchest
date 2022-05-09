@@ -47,14 +47,14 @@ class Model(object):
             filename = self.filename
         with open(filename, 'w') as file:
             json.dump(self.object, file, sort_keys=True, indent=4,
-            separators=(',', ': '))
+                      separators=(',', ': '))
         self.filename = filename
 
 
 class ViewModel(object):
     def __init__(self, view):
         self.filetypes = (('JSON files', '*.json'),
-                           ('All files', '*.*'))
+                          ('All files', '*.*'))
         self.item = None
         self.view = view
 
@@ -65,7 +65,8 @@ class ViewModel(object):
         self.bind_menu(view.menu_file, 'Save', command=self.cmd_save)
         self.bind_menu(view.menu_file, 'Save As ...', command=self.cmd_save_as)
         self.bind_menu(view.menu_file, 'Quit', command=view.cmd_quit)
-        self.bind_menu(view.menu_help, 'Documentation', command=self.cmd_documentation)
+        self.bind_menu(view.menu_help, 'Documentation',
+                       command=self.cmd_documentation)
         self.bind_menu(cm, 'Add object', command=self.cmd_add_object)
         self.bind_menu(cm, 'Rename', command=self.cmd_rename)
         self.bind_menu(cm, 'Add array', command=self.cmd_add_array)
@@ -114,8 +115,10 @@ class ViewModel(object):
             return
         selected = self.selected()
         old_value = self.view.treeview.item(selected, 'values')
-        new_text = name + self.view.treeview.item(selected, 'text')[len(old_value[0]):]
-        self.view.treeview.item(selected, text=new_text, values=(name, old_value[1]))
+        new_text = name + \
+            self.view.treeview.item(selected, 'text')[len(old_value[0]):]
+        self.view.treeview.item(selected, text=new_text,
+                                values=(name, old_value[1]))
         self.view.cmd_dirty()
 
     def cmd_add_array(self):
@@ -148,10 +151,10 @@ class ViewModel(object):
         self.view.treeview.delete(selected)
         self.view.cmd_dirty()
 
-    def _unfold_subtree(self,item,unfold=True):
-        self.view.treeview.item(item,open=unfold)
+    def _unfold_subtree(self, item, unfold=True):
+        self.view.treeview.item(item, open=unfold)
         for child in self.view.treeview.get_children(item):
-            self._unfold_subtree(child,unfold)
+            self._unfold_subtree(child, unfold)
 
     def cmd_unfold_subtree(self):
         selected = self.selected()
@@ -159,7 +162,7 @@ class ViewModel(object):
 
     def cmd_fold_subtree(self):
         selected = self.selected()
-        self._unfold_subtree(selected,False)
+        self._unfold_subtree(selected, False)
 
     def cmd_new(self):
         self.model = Model()
@@ -195,14 +198,16 @@ class ViewModel(object):
             self.update_title()
 
     def cmd_documentation(self):
-        webbrowser.open_new('https://www.intrepiduniverse.com/projects/jsonEditor.html')
+        webbrowser.open_new(
+            'https://www.intrepiduniverse.com/projects/jsonEditor.html')
 
     def on_item_keyup(self, event):
         if not self.item is None:
             text = self.view.item_text.get(1.0, tkinter.END)[:-1]
             type = self.item_type[self.item]
             if type == bool:
-                cast = lambda x : x.lower().strip() in ['true', '1', 't', 'y', 'yes']
+                def cast(x): return x.lower().strip() in [
+                    'true', '1', 't', 'y', 'yes']
             elif type in (int, float):
                 def to_number(text):
                     try:
@@ -211,10 +216,11 @@ class ViewModel(object):
                         return 0
                 cast = to_number
             else:
-                cast = lambda x : str(x)
+                def cast(x): return str(x)
             value = str(cast(text))
             values = self.view.treeview.item(self.item, 'values')
-            self.view.treeview.item(self.item, text=augment(values[0], value), values=(values[0], value))
+            self.view.treeview.item(self.item, text=augment(
+                values[0], value), values=(values[0], value))
             self.view.cmd_dirty()
 
     def on_treeview_button(self, event):
@@ -245,22 +251,27 @@ class ViewModel(object):
     def object_to_tree(self, obj, container_id='', key_id=None):
         if container_id == '':
             self.view.treeview.delete(*self.view.treeview.get_children())
-            key_id = self.view.treeview.insert(container_id, 'end', text='root')
+            key_id = self.view.treeview.insert(
+                container_id, 'end', text='root')
             self.item_type = {'': 'root', key_id: dict}
 
         key_item = self.view.treeview.item(key_id)
         key_text = key_item['text']
         if isinstance(obj, dict):
-            self.view.treeview.item(key_id, text=augment(key_text, '{ ... }'), values=(key_text, dict))
+            self.view.treeview.item(key_id, text=augment(
+                key_text, '{ ... }'), values=(key_text, dict))
             self.item_type[key_id] = dict
             for key in sorted(obj):
-                inner_key_id = self.view.treeview.insert(key_id, 'end', text=key)
+                inner_key_id = self.view.treeview.insert(
+                    key_id, 'end', text=key)
                 self.object_to_tree(obj[key], key_item, inner_key_id)
         elif isinstance(obj, list):
-            self.view.treeview.item(key_id, text=augment(key_text, '[ ,,, ]'), values=(key_text, list))
+            self.view.treeview.item(key_id, text=augment(
+                key_text, '[ ,,, ]'), values=(key_text, list))
             self.item_type[key_id] = list
             for item in obj:
-                inner_key_id = self.view.treeview.insert(key_id, 'end', text='')
+                inner_key_id = self.view.treeview.insert(
+                    key_id, 'end', text='')
                 self.object_to_tree(item, key_item, inner_key_id)
         else:
             if obj is None:
@@ -270,14 +281,15 @@ class ViewModel(object):
             else:
                 obj = str(obj)
                 value_text = str(obj)
-            self.view.treeview.item(key_id, text=augment(key_text, value_text), values=(key_text, value_text))
+            self.view.treeview.item(key_id, text=augment(
+                key_text, value_text), values=(key_text, value_text))
             self.item_type[key_id] = type(obj)
             if obj is None:
                 self.item_type[key_id] = 'null'
 
     def tree_to_json(self, node_id=''):
         if not node_id:
-            node_id = self.view.treeview.get_children()[0] 
+            node_id = self.view.treeview.get_children()[0]
         type = self.item_type[node_id]
         tree = self.view.treeview
         if type == dict:
@@ -286,7 +298,8 @@ class ViewModel(object):
                 if inner:
                     inner += ', '
                 value = str(self.tree_to_json(key_id))
-                inner += '"' + str(tree.item(key_id)['values'][0]) + '": ' + value
+                inner += '"' + str(tree.item(key_id)
+                                   ['values'][0]) + '": ' + value
             return '{' + inner + '}'
         elif type == list:
             inner = ''
@@ -342,7 +355,8 @@ class ViewModel(object):
         type = self.item_type[item_id]
         if type not in (dict, list, 'null'):
             values = self.view.treeview.item(item_id, 'values')
-            value_text = self.view.treeview.item(item_id, 'text').replace(values[0] + ' : ', '')
+            value_text = self.view.treeview.item(
+                item_id, 'text').replace(values[0] + ' : ', '')
 
             self.set_parent_name(str(type) + ' ' + values[0])
             self.view.item_text.delete(1.0, tkinter.END)
@@ -365,14 +379,14 @@ class ViewModel(object):
     def menu_for_item(self, item_id):
         type = self.item_type[item_id]
         context_matrix = {
-            'root'  : [0,0,0,0,0,0,0,0,0,2,0,2,5,6],
-            dict    : [1,4,1,3,3,1,1,1,1,2,1,2,5,6],
-            list    : [1,4,1,3,3,1,1,1,1,2,1,2,5,6],
-            str     : [0,4,0,3,3,0,0,0,0,2,1,2,0,6],
-            int     : [0,4,0,3,3,0,0,0,0,2,1,2,0,0],
-            float   : [0,4,0,3,3,0,0,0,0,2,1,2,0,0],
-            bool    : [0,4,0,3,3,0,0,0,0,2,1,2,0,0],
-            'null'  : [0,4,0,3,3,0,0,0,0,2,1,2,0,0],
+            'root': [0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 5, 6],
+            dict: [1, 4, 1, 3, 3, 1, 1, 1, 1, 2, 1, 2, 5, 6],
+            list: [1, 4, 1, 3, 3, 1, 1, 1, 1, 2, 1, 2, 5, 6],
+            str: [0, 4, 0, 3, 3, 0, 0, 0, 0, 2, 1, 2, 0, 6],
+            int: [0, 4, 0, 3, 3, 0, 0, 0, 0, 2, 1, 2, 0, 0],
+            float: [0, 4, 0, 3, 3, 0, 0, 0, 0, 2, 1, 2, 0, 0],
+            bool: [0, 4, 0, 3, 3, 0, 0, 0, 0, 2, 1, 2, 0, 0],
+            'null': [0, 4, 0, 3, 3, 0, 0, 0, 0, 2, 1, 2, 0, 0],
         }
         menu = self.view.context_menu
         for i in range(len(context_matrix[type])):
@@ -387,22 +401,22 @@ class ViewModel(object):
                 if parent_type == list:
                     menu.entryconfigure(i, state=tkinter.NORMAL)
                 else:
-                    menu.entryconfigure(i, state=tkinter.DISABLED) 
+                    menu.entryconfigure(i, state=tkinter.DISABLED)
             elif state == 4:
                 if parent_type == dict:
                     menu.entryconfigure(i, state=tkinter.NORMAL)
                 else:
-                    menu.entryconfigure(i, state=tkinter.DISABLED) 
+                    menu.entryconfigure(i, state=tkinter.DISABLED)
             elif state == 5:
-                if len(self.view.treeview.get_children(item_id)) > 0 and self.view.treeview.item(item_id,'open') == False:
+                if len(self.view.treeview.get_children(item_id)) > 0 and self.view.treeview.item(item_id, 'open') == False:
                     menu.entryconfigure(i, state=tkinter.NORMAL)
                 else:
-                    menu.entryconfigure(i, state=tkinter.DISABLED) 
+                    menu.entryconfigure(i, state=tkinter.DISABLED)
             elif state == 6:
-                if len(self.view.treeview.get_children(item_id)) > 0 and self.view.treeview.item(item_id,'open'):
+                if len(self.view.treeview.get_children(item_id)) > 0 and self.view.treeview.item(item_id, 'open'):
                     menu.entryconfigure(i, state=tkinter.NORMAL)
                 else:
-                    menu.entryconfigure(i, state=tkinter.DISABLED) 
+                    menu.entryconfigure(i, state=tkinter.DISABLED)
 
     def move_selected(self, offset):
         selected = self.selected()
@@ -442,7 +456,8 @@ class JSONEdit(GUIApplication.GUIApplication):
         self.menu_file.add_command(label='Quit')
 
         self.menu_help = tkinter.Menu(self.menu, tearoff=False)
-        self.menu_help.add_command(label='Version 1.0.0', state=tkinter.DISABLED)
+        self.menu_help.add_command(
+            label='Version 1.0.0', state=tkinter.DISABLED)
         self.menu_help.add_command(label='Documentation')
 
         self.root.config(menu=self.menu)
@@ -472,7 +487,8 @@ class JSONEdit(GUIApplication.GUIApplication):
         self.create_menu()
         self.create_context_menu()
 
-        self.pane = tkinter.PanedWindow(self.root, orient=tkinter.HORIZONTAL, sashwidth=4, showhandle=True)
+        self.pane = tkinter.PanedWindow(
+            self.root, orient=tkinter.HORIZONTAL, sashwidth=4, showhandle=True)
         self.pane.pack(fill=tkinter.BOTH, expand=True)
 
         self.treeview, self.treeview_scrolled = self.create_scrolled(

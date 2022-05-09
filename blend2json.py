@@ -69,7 +69,7 @@ class BlendEncoder(json.JSONEncoder):
     def encode_bpy_struct(self, obj):
         """ Encode a bpy_struct. """
         self.cycle_detector[self.identity(obj)] = True
-        result = {'_identity':self.identity(obj)}
+        result = {'_identity': self.identity(obj)}
         for key in dir(obj):
             if key[:2] == '__' or key[:3] == 'rna' or key[:6] == 'users_' \
                     or key in ['original', 'bl_rna', 'all_objects', 'keying_sets_all', 'field']:
@@ -92,15 +92,15 @@ class BlendEncoder(json.JSONEncoder):
             return obj
         elif isinstance(obj, (list, tuple)):
             return list(self.default(e) for e in obj)
-        elif isinstance(obj, (mathutils.Color, mathutils.Euler, mathutils.Matrix, \
-                mathutils.Quaternion, mathutils.Vector)):
+        elif isinstance(obj, (mathutils.Color, mathutils.Euler, mathutils.Matrix,
+                              mathutils.Quaternion, mathutils.Vector)):
             return str(obj)
         elif isinstance(obj, set):
             return str(sorted([self.default(e) for e in obj]))
         elif isinstance(obj, bytes):
-            return {'length-bytes':len(obj), 'md5':hashlib.md5(obj).hexdigest()}
+            return {'length-bytes': len(obj), 'md5': hashlib.md5(obj).hexdigest()}
         elif self.identity(obj) in self.cycle_detector:
-            return {'_identityRef':self.identity(obj)}
+            return {'_identityRef': self.identity(obj)}
         elif isinstance(obj, bpy.types.bpy_struct):
             return self.encode_bpy_struct(obj)
         elif isinstance(obj, bpy.types.bpy_prop_collection):
@@ -135,5 +135,6 @@ def main():
     handle = open(output_file, 'w')
     handle.write(text)
     handle.close()
+
 
 main()
