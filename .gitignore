@@ -76,4 +76,4 @@ venv
 searchanalytics/client_secrets.json
 searchanalytics/*.sqlite3
 searchanalytics/*.sqbpro
-searchanalytics/webmasters.dat
+searchanalytics/searchconsole.dat

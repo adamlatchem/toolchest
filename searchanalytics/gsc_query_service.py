@@ -106,7 +106,7 @@ class GSCQueryService:
     def __init__(self, argument_parser):
         """  Connect to data source taking arguments from command line """
         self.service, self.options = sample_tools.init(
-            sys.argv, 'webmasters', 'v3', __doc__, __file__, parents=[argument_parser],
+            sys.argv, 'searchconsole', 'v1', __doc__, __file__, parents=[argument_parser],
             scope='https://www.googleapis.com/auth/webmasters.readonly')
 
     def query_grand_total(self, search_type):
